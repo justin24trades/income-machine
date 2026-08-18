@@ -17817,10 +17817,11 @@ function cmd2BuildSigCol() {
 
   const emaLoaded = (window._putCardCache||[]).some(c => c.emaData != null);
 
-  // Moved to act now note
-  const movedTks = [...tickers.filter(t=>gpGetPutSignal(t)==='buy'), ...tickers.filter(t=>{if(gpGetPutSignal(t)==='buy')return false;const chg=gpLivePrices[t.name]?.chgPct??0;if(chg>-rdaT)return false;const{weekly,daily}=getRipsterSignal(t.name);return weekly?.bullTrend&&daily?.bullTrend;})];
-  movedTks.forEach(t=>shown.add(t.name));
-  if (movedTks.length) html += '<div style="padding:5px 12px;font-size:10px;color:var(--amber);border-bottom:1px solid var(--border)">↩ '+movedTks.map(t=>t.name).join(', ')+' moved to Act Now</div>';
+  // Tickers that qualify for Act Now should not also appear in watchlist
+  const actNowTks = tickers.filter(t => gpGetPutSignal(t)==='buy' || gpGetPutSignal(t)==='entry');
+  actNowTks.forEach(t => shown.add(t.name));
+  // Announce all Act Now qualifiers in the notification strip
+  if (actNowTks.length) html += '<div style="padding:5px 12px;font-size:10px;color:var(--amber);border-bottom:1px solid var(--border)">↩ '+actNowTks.map(t=>t.name).join(', ')+' moved to Act Now</div>';
 
   const mkCard = (t, accentClr, dimmed) => {
     const price=gpLivePrices[t.name]?.price||t.price||0;
