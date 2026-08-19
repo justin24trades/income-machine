@@ -21630,10 +21630,17 @@ async function fetchAccountData() {
         new Date(t.openDate+'T12:00:00').getFullYear()===yr
       ).reduce((s,t) => { const pl=calcPL(t); return s+(pl!=null?Math.max(0,pl):0); }, 0);
 
-      const pnlTiles   = [
-        { label:'Net open P&L',        val: (netOpenPL >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(netOpenPL)).toLocaleString(), sub:'premium collected − cost to close now', color: netOpenPL >= 0 ? 'var(--green)' : 'var(--red)' },
-        { label:'Tradier open P&L',    val: fmtD(openPlVal),       sub:'mark-to-market (Tradier)',     color: plColor(openPlVal) },
-        { label:'Realized (month)',     val: fmtD(journalRealized), sub:'net income from closed trades', color: plColor(journalRealized) },
+      const acctCurYear = new Date().getFullYear();
+      const ytdRealized = (JOURNAL||[])
+        .filter(t => t.closeDate && !t.cancelled && String(t.closeDate).startsWith(acctCurYear))
+        .reduce((s,t) => s + (calcPL(t)||0), 0);
+      const premiumAtRisk = (JOURNAL||[])
+        .filter(t => !t.closeDate && !t.cancelled && !isPendingOrder(t) && (t.type==='put'||t.type==='cc') && !t.isEquity)
+        .reduce((s,t) => s + ((parseFloat(t.premium)||0)*(t.contracts||1)*100), 0);
+      const pnlTiles = [
+        { label:'Premium at risk',     val: '+$' + Math.round(premiumAtRisk).toLocaleString(), sub:'total credit on open positions',    color: 'var(--green)' },
+        { label:'Day P&L',             val: fmtD(openPlVal),       sub:"today's change (Tradier)",      color: plColor(openPlVal) },
+        { label:'Realized YTD',        val: (ytdRealized >= 0 ? '+' : '−') + '$' + Math.abs(Math.round(ytdRealized)).toLocaleString(), sub:'closed trades ' + acctCurYear, color: ytdRealized >= 0 ? 'var(--green)' : 'var(--red)' },
       ];
       pnlGrid.innerHTML = pnlTiles.map(t =>
         `<div class="tile"><div class="tile-label">${t.label}</div><div class="tile-value" style="color:${t.color};font-size:18px;">${t.val}</div><div class="tile-sub">${t.sub}</div></div>`
@@ -21691,7 +21698,7 @@ async function fetchAccountData() {
             </div>
           </div>
           <div style="margin-top:8px;font-size:11px;color:var(--text-3);line-height:1.6;">
-            💡 True value = cash ($${Math.round(cashVal).toLocaleString()}) ${netOpenPL>=0?'+':'−'} net P&amp;L if closed now ($${Math.abs(Math.round(netOpenPL)).toLocaleString()}) = <strong style="color:var(--text);">$${Math.round(trueValue).toLocaleString()}</strong>
+            💡 True value = cash ($${Math.round(cashVal).toLocaleString()}) + net open P&amp;L (${netOpenPL>=0?'+':'−'}$${Math.abs(Math.round(netOpenPL)).toLocaleString()}) = <strong style="color:var(--text);">$${Math.round(trueValue).toLocaleString()}</strong>
           </div>
         </div>` : `
         <div style="grid-column:1/-1;margin-top:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--text-3);">
