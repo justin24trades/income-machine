@@ -1804,7 +1804,7 @@
         <div id="inc-open-credit-sub" style="font-size:11px;color:var(--text-3);margin-top:1px;"></div>
       </div>
       <div>
-        <div style="font-size:11px;color:var(--text-3);margin-bottom:3px;">After-tax (est.)</div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:3px;">After-tax est. <span id="inc-tax-rate-label" style="font-size:10px;">(35% rate)</span></div>
         <div id="inc-after-tax-hero" style="font-size:24px;font-weight:500;color:var(--amber);">—</div>
         <div id="inc-annual-target" style="font-size:11px;color:var(--text-3);margin-top:1px;"></div>
       </div>
@@ -2372,39 +2372,39 @@
 
 <!-- ══════════════ TICKER REPORT CARDS ══════════════ -->
 <div class="page" id="page-ticker-report">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
     <div>
       <div class="page-title">Ticker Report Cards</div>
       <div class="page-sub">Per-ticker performance across all closed trades — win rate, premium collected, hold time, assignment rate, and strategic grade.</div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;">
-      <div style="margin-top:4px;"><span class="page-status" id="trc-status"></span></div>
-      <select id="trc-sort" onchange="buildTickerReports()" style="background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:12px;outline:none;">
-        <option value="credit">Sort: Total credit</option>
-        <option value="winrate">Sort: Win rate</option>
-        <option value="trades">Sort: Trade count</option>
-        <option value="grade">Sort: Grade</option>
+    <div style="margin-top:4px;"><span class="page-status" id="trc-status"></span></div>
+  </div>
+
+  <!-- Summary strip — 3 cols -->
+  <div id="trc-summary" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;"></div>
+
+  <!-- Controls + Grade legend in one bar -->
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:12px;">
+    <div style="display:flex;gap:10px;font-size:11px;color:var(--text-2);flex-wrap:wrap;align-items:center;flex:1;">
+      <span><span style="background:rgba(34,197,94,.15);color:#16a34a;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(34,197,94,.3);">A</span> ≥75% win + ≤14d hold</span>
+      <span><span style="background:rgba(59,130,246,.12);color:#2563eb;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(59,130,246,.25);">B</span> ≥60% win</span>
+      <span><span style="background:rgba(245,158,11,.12);color:#d97706;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(245,158,11,.25);">C</span> Mixed</span>
+      <span><span style="background:rgba(239,68,68,.1);color:#dc2626;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(239,68,68,.2);">D</span> &lt;50% win</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+      <span style="font-size:12px;color:var(--text-3);">Sort</span>
+      <select id="trc-sort" onchange="buildTickerReports()" style="background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;outline:none;">
+        <option value="credit">Total credit</option>
+        <option value="winrate">Win rate</option>
+        <option value="trades">Trade count</option>
+        <option value="grade">Grade</option>
       </select>
-      <button onclick="buildTickerReports()" class="btn btn-blue" style="font-size:12px;padding:7px 14px;">↻ Refresh</button>
+      <button onclick="buildTickerReports()" class="btn btn-blue" style="font-size:12px;padding:5px 12px;">↻</button>
     </div>
   </div>
 
-  <!-- Summary strip -->
-  <div id="trc-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;"></div>
-
-  <!-- Grade legend -->
-  <div style="display:flex;gap:14px;font-size:11px;color:var(--text-2);margin-bottom:16px;flex-wrap:wrap;">
-    <span><span style="background:rgba(34,197,94,.15);color:#16a34a;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(34,197,94,.3);">A</span> Win rate ≥75% + avg hold ≤14d</span>
-    <span><span style="background:rgba(59,130,246,.12);color:#2563eb;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(59,130,246,.25);">B</span> Win rate ≥60% or solid premium</span>
-    <span><span style="background:rgba(245,158,11,.12);color:#d97706;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(245,158,11,.25);">C</span> Mixed results — review strategy</span>
-    <span><span style="background:rgba(239,68,68,.1);color:#dc2626;padding:1px 8px;border-radius:20px;font-weight:700;border:1px solid rgba(239,68,68,.2);">D</span> Win rate &lt;50% — reassess</span>
-  </div>
-
-  <div class="trc-grid" id="trc-grid">
-    <div style="text-align:center;padding:40px;color:var(--text-3);grid-column:1/-1;">
-      No closed trades yet. Close trades in the Journal to see performance data.
-    </div>
-  </div>
+  <div id="trc-table"></div>
+  <div class="trc-grid" id="trc-grid"></div>
 
   <div class="footer">Based on all closed trades in your Journal regardless of year. Open positions excluded. Not financial advice.</div>
 </div>
@@ -7695,19 +7695,63 @@ function _buildTRC(sortId, summaryId, gridId) {
   });
 
   // Summary tiles
-  const totalCredit = sorted.reduce((s,d)=>s+d.credit,0);
-  const totalTrades = sorted.reduce((s,d)=>s+d.trades.length,0);
-  const totalWins   = sorted.reduce((s,d)=>s+d.wins,0);
-  const overallWR   = totalTrades?Math.round(totalWins/totalTrades*100):0;
-  const best        = sorted[0];
+  const totalCredit  = sorted.reduce((s,d)=>s+d.credit,0);
+  const totalPL      = sorted.reduce((s,d)=>s+d.pl,0);
+  const totalTrades  = sorted.reduce((s,d)=>s+d.trades.length,0);
+  const totalWins    = sorted.reduce((s,d)=>s+d.wins,0);
+  const overallWR    = totalTrades?Math.round(totalWins/totalTrades*100):0;
+  const premRetained = totalCredit > 0 ? (totalPL/totalCredit*100).toFixed(1) : null;
+  const best         = sorted[0];
+
   if (sumEl) sumEl.innerHTML = `
-    <div class="tile"><div class="tile-label">Tickers tracked</div><div class="tile-value">${sorted.length}</div><div class="tile-sub">${totalTrades} closed trades</div></div>
-    <div class="tile"><div class="tile-label">Total premium</div><div class="tile-value" style="color:var(--green);">${trcFmt(totalCredit)}</div></div>
-    <div class="tile"><div class="tile-label">Overall win rate</div><div class="tile-value" style="color:${overallWR>=70?'var(--green)':overallWR>=50?'var(--amber)':'var(--red)'};">${overallWR}%</div></div>
-    <div class="tile"><div class="tile-label">Top ticker</div><div class="tile-value" style="color:var(--blue);">${best?.ticker||'—'}</div><div class="tile-sub">${trcFmt(best?.credit||0)}</div></div>`;
+    <div class="tile"><div class="tile-label">Tickers with closed trades</div><div class="tile-value">${sorted.length}</div><div class="tile-sub">${totalTrades} closed trade${totalTrades!==1?'s':''}</div></div>
+    <div class="tile"><div class="tile-label">Total premium</div><div class="tile-value" style="color:var(--green);">${trcFmt(totalCredit)}</div><div class="tile-sub">gross collected</div></div>
+    <div class="tile"><div class="tile-label">Realized P&L</div><div class="tile-value" style="color:${totalPL>=0?'var(--green)':'var(--red)'};">${totalPL>=0?'+':'−'}${trcFmt(Math.abs(totalPL))}</div><div class="tile-sub">net after closing costs</div></div>
+    <div class="tile"><div class="tile-label">Premium retained</div><div class="tile-value" style="color:${premRetained&&parseFloat(premRetained)>=40?'var(--green)':'var(--amber)'};">${premRetained?premRetained+'%':'—'}</div><div class="tile-sub">of gross premium kept</div></div>
+    <div class="tile"><div class="tile-label">Overall win rate</div><div class="tile-value" style="color:${overallWR>=70?'var(--green)':overallWR>=50?'var(--amber)':'var(--red)'};">${overallWR}%</div><div class="tile-sub">${totalWins} wins / ${totalTrades-totalWins} losses</div></div>
+    <div class="tile"><div class="tile-label">Top ticker</div><div class="tile-value" style="color:var(--blue);">${best?.ticker||'—'}</div><div class="tile-sub">${trcFmt(best?.credit||0)} premium</div></div>`;
+
+  // Portfolio summary table
+  const tableHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:20px;">
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);">Ticker performance summary</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:7px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Ticker</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Trades</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Win rate</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Premium</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">P&L</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Avg hold</th>
+          <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Grade</th>
+        </tr></thead>
+        <tbody>
+        ${sorted.map(d => {
+          const n = d.trades.length;
+          const wr = n ? d.wins/n : 0;
+          const hold = d.holdDays.length ? Math.round(d.holdDays.reduce((s,v)=>s+v,0)/d.holdDays.length) : null;
+          const ar = d.puts.length ? d.assignments/d.puts.length : 0;
+          const { grade, cls } = trcGrade(wr, hold, ar, n);
+          const wrColor = wr>=0.70?'var(--green)':wr>=0.50?'var(--amber)':'var(--red)';
+          const plColor = d.pl>=0?'var(--green)':'var(--red)';
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px 16px;"><strong style="font-size:13px;">${d.ticker}</strong></td>
+            <td style="padding:8px 12px;text-align:right;color:var(--text-2);">${n}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:${wrColor};">${Math.round(wr*100)}%</td>
+            <td style="padding:8px 12px;text-align:right;color:var(--green);">${trcFmt(d.credit)}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:${plColor};">${d.pl>=0?'+':'−'}${trcFmt(Math.abs(d.pl))}</td>
+            <td style="padding:8px 12px;text-align:right;color:var(--text-2);">${hold!=null?hold+'d':'—'}</td>
+            <td style="padding:8px 12px;text-align:right;"><span class="${cls}" style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;">${grade}</span></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+    </div>`;
 
   if (!grid) return;
-  grid.innerHTML = sorted.map(d => {
+  const tableEl = document.getElementById(gridId.replace('grid','table'));
+  if (tableEl) tableEl.innerHTML = tableHTML;
+  grid.innerHTML = sorted.length ? sorted.map(d => {
     const n = d.trades.length;
     const winRate    = n ? d.wins/n : 0;
     const avgHold    = d.holdDays.length ? d.holdDays.reduce((s,v)=>s+v,0)/d.holdDays.length : null;
@@ -7804,8 +7848,8 @@ function _buildTRC(sortId, summaryId, gridId) {
           </div>
           <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;">
             <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:3px;">Avg annualized</div>
-            <div style="font-size:16px;font-weight:800;color:${avgAnnRet!=null&&parseFloat(avgAnnRet)>=0?'var(--green)':'var(--red)'};">${avgAnnRet!=null?avgAnnRet+'%':'—'}</div>
-            <div style="font-size:10px;color:var(--text-3);">${avgHold!=null?Math.round(avgHold)+'d avg hold':'—'}</div>
+            <div style="font-size:16px;font-weight:800;color:${avgAnnRet!=null&&parseFloat(avgAnnRet)>=0?'var(--green)':'var(--red)'};">${avgAnnRet!=null?avgAnnRet+'%':'N/A'}</div>
+            <div style="font-size:10px;color:var(--text-3);">${avgAnnRet!=null?(avgHold!=null?Math.round(avgHold)+'d avg hold':'—'):'requires ≥1 day hold'}</div>
           </div>
         </div>
 
@@ -7815,8 +7859,8 @@ function _buildTRC(sortId, summaryId, gridId) {
           <span style="font-size:11px;color:var(--text-3);">Entry context avg:</span>
           ${avgIVR != null ? `<span style="font-size:11px;color:var(--text-2);">IVR <strong style="color:${avgIVR>=50?'var(--green)':avgIVR>=30?'var(--amber)':'var(--red)'};">${avgIVR}</strong></span>` : ''}
           ${avgOTM != null ? `<span style="font-size:11px;color:var(--text-2);">OTM <strong style="color:var(--green);">${avgOTM}%</strong></span>` : ''}
-          ${allTrades.filter(t=>t.cloudAtEntry==='green').length > 0 ? `<span style="font-size:11px;color:var(--text-2);">Cloud green entries: <strong>${allTrades.filter(t=>t.cloudAtEntry==='green').length}</strong></span>` : ''}
-          ${allTrades.filter(t=>t.cloudAtEntry==='red').length > 0 ? `<span style="font-size:11px;color:var(--text-2);">Cloud red entries: <strong style="color:var(--red);">${allTrades.filter(t=>t.cloudAtEntry==='red').length}</strong></span>` : ''}
+          ${allTrades.filter(t=>t.cloudAtEntry==='green').length > 0 ? `<span style="font-size:11px;color:var(--text-2);" title="Trades entered when EMA cloud was bullish (both clouds green)">Bullish cloud entries: <strong>${allTrades.filter(t=>t.cloudAtEntry==='green').length}</strong></span>` : ''}
+          ${allTrades.filter(t=>t.cloudAtEntry==='red').length > 0 ? `<span style="font-size:11px;color:var(--text-2);" title="Trades entered when EMA cloud was bearish — higher risk">Bearish cloud entries: <strong style="color:var(--red);">${allTrades.filter(t=>t.cloudAtEntry==='red').length}</strong></span>` : ''}
         </div>` : ''}
 
         <!-- Trade timeline dots -->
@@ -7864,13 +7908,13 @@ function _buildTRC(sortId, summaryId, gridId) {
         <div class="trc-stat-row"><span class="trc-stat-label">Realized P&L</span><span class="trc-stat-val" style="color:${plColor};">${d.pl>=0?'+':'−'}${trcFmt(Math.abs(d.pl))}</span></div>
         <div class="trc-stat-row"><span class="trc-stat-label">Assignment rate</span><span class="trc-stat-val" style="color:${assignRate>0.25?'var(--amber)':'var(--text)'};">${d.puts.length?Math.round(assignRate*100)+'%':'—'} <span style="font-size:10px;color:var(--text-3);">(${d.assignments}/${d.puts.length} puts)</span></span></div>
         <div class="trc-stat-row"><span class="trc-stat-label">Best trade</span><span class="trc-stat-val" style="color:var(--green);">${bestT?'+'+ trcFmt(calcPL(bestT)):'—'}<span style="font-size:10px;color:var(--text-3);margin-left:4px;">${bestT?'$'+bestT.strike+' strike':''}</span></span></div>
-        <div class="trc-stat-row"><span class="trc-stat-label">Worst trade</span><span class="trc-stat-val" style="color:${(calcPL(worstT)||0)<0?'var(--red)':'var(--text)'};">${worstT?(calcPL(worstT)||0)<0?'-':'+':''}${worstT?trcFmt(Math.abs(calcPL(worstT)||0)):'—'}<span style="font-size:10px;color:var(--text-3);margin-left:4px;">${worstT?'$'+worstT.strike+' strike':''}</span></span></div>
+        <div class="trc-stat-row"><span class="trc-stat-label">Lowest P&L</span><span class="trc-stat-val" style="color:${(calcPL(worstT)||0)<0?'var(--red)':'var(--text)'};">${worstT?(calcPL(worstT)||0)<0?'-':'+':''}${worstT?trcFmt(Math.abs(calcPL(worstT)||0)):'—'}<span style="font-size:10px;color:var(--text-3);margin-left:4px;">${worstT?'$'+worstT.strike+' strike':''}</span></span></div>
         <div class="trc-stat-row"><span class="trc-stat-label">Fastest win / longest hold</span><span class="trc-stat-val">${minHold!=null?minHold+'d':''} <span style="color:var(--text-3);">/</span> ${maxHold!=null?maxHold+'d':'—'}</span></div>
       </div>
       <div class="trc-insight">💡 ${insight}</div>
       ${historySection}
     </div>`;
-  }).join('');
+  }).join('') : '<div style="text-align:center;padding:40px;color:var(--text-3);">No closed trades yet.</div>';
   setLastRefreshed(gridId === 'trc-grid' ? 'trc-status' : 'trc-status', 'Updated');
 }
 
@@ -8196,21 +8240,22 @@ function incSetTab(tab) {
     if (el && !el.dataset.built) {
       // Clone the ticker report page controls + grid into the tab
       el.innerHTML = `
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-          <div id="trc-summary-inc" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;flex:1;"></div>
-          <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-            <label style="font-size:11px;color:var(--text-3);">Sort by</label>
+        <div style="margin-bottom:12px;">
+          <div id="trc-summary-inc" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <label style="font-size:11px;color:var(--text-3);">Sort</label>
             <select id="trc-sort-inc" onchange="buildTickerReportsInline()"
-              style="background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);padding:7px 12px;font-size:12px;outline:none;">
+              style="background:var(--surface);border:1px solid var(--border-strong);color:var(--text);border-radius:var(--radius-sm);padding:5px 10px;font-size:12px;outline:none;">
               <option value="credit">Total credit</option>
               <option value="pl">Realized P&L</option>
               <option value="winrate">Win rate</option>
               <option value="trades">Trade count</option>
               <option value="grade">Grade</option>
             </select>
-            <button onclick="buildTickerReportsInline()" class="btn btn-blue" style="font-size:12px;padding:7px 14px;">↻ Refresh</button>
+            <button onclick="buildTickerReportsInline()" class="btn btn-blue" style="font-size:12px;padding:5px 10px;">↻</button>
           </div>
         </div>
+        <div id="trc-table-inc"></div>
         <div class="trc-grid" id="trc-grid-inc"></div>`;
       el.dataset.built = '1';
     }
@@ -8320,25 +8365,31 @@ function buildIncomeTracker() {
   const totalCCCredit  = monthly.reduce((s,m)=>s+m.ccCredit,0);
   const putPct         = totalYearCredit > 0 ? Math.round(totalPutCredit/totalYearCredit*100) : 0;
   const ccPct          = totalYearCredit > 0 ? Math.round(totalCCCredit/totalYearCredit*100) : 0;
-  // P&L, win rate, hold time: closed trades only
+  // P&L, win rate, hold time: CLOSED trades only (never include open)
   const closedAll      = allTrades.filter(t => t.closeDate && t.openDate);
   const totalYearPL    = closed.map(t=>calcPL(t)).filter(v=>v!=null).reduce((s,v)=>s+v,0);
   const totalWins      = closed.filter(t=>(calcPL(t)||0)>0).length;
-  const winRate        = closed.length?Math.round(totalWins/closed.length*100):0;
+  // Win rate = closed trades only — open positions excluded
+  const winRate        = closed.length ? Math.round(totalWins/closed.length*100) : null;
   const allHold        = closed.map(t => calcHoldDays(t)).filter(d => d !== null);
   const avgHold        = allHold.length?Math.round(allHold.reduce((s,v)=>s+v,0)/allHold.length):null;
   // After-tax based on realized income only
   const afterTax       = totalYearCredit * (1 - TAX_RATE);
-  // Pending = 50% of premium on open positions (expected GTC target income)
-  const openCredit     = openTrades.reduce((s,t)=>s+(t.type==='shares'||t.isEquity?0:(parseFloat(t.premium)||0)*(t.contracts||1)*100*0.5),0);
+  // Pending premium = full premium on open positions (gross collected, not 50% target)
+  // Clearly labeled as gross premium, not realized income
+  const openCredit     = openTrades.reduce((s,t)=>s+(t.type==='shares'||t.isEquity?0:(parseFloat(t.premium)||0)*(t.contracts||1)*100),0);
+  // Gross credit collected (all premium collected regardless of close status)
+  const grossCredit    = [...closed, ...openTrades].reduce((s,t)=>s+(t.type==='shares'||t.isEquity?0:(parseFloat(t.premium)||0)*(t.contracts||1)*100),0);
 
   // ── Hero ──────────────────────────────────
   const annualTargetEl = document.getElementById('inc-annual-target');
   if (annualTargetEl) {
-    if (rocTrades.length && annualized !== avgMonthly * 12) {
-      annualTargetEl.textContent = '≈ ' + incFmt(Math.round(annualized)) + '/yr projected · based on ' + avgHold + 'd avg hold';
+    if (rocTrades.length >= 3) {
+      annualTargetEl.textContent = '≈ ' + incFmt(Math.round(annualized)) + '/yr projected · based on ' + rocTrades.length + ' closed trades';
+    } else if (rocTrades.length > 0) {
+      annualTargetEl.textContent = '≈ ' + incFmt(Math.round(annualized)) + '/yr (limited data — ' + rocTrades.length + ' trade' + (rocTrades.length>1?'s':'') + ')';
     } else if (goal) {
-      annualTargetEl.textContent = '= ' + incFmt(goal*12) + '/yr';
+      annualTargetEl.innerHTML = '<span style="color:var(--text-3);">Annual goal: </span>' + incFmt(goal*12) + '/yr';
     }
   }
 
@@ -8368,9 +8419,20 @@ function buildIncomeTracker() {
   const pDays    = document.getElementById('inc-prog-days');
   const pRemain  = document.getElementById('inc-prog-remaining');
   if (fillEl)  { fillEl.style.width=pct+'%'; fillEl.style.background=pct>=100?'var(--green)':pct>=66?'var(--amber)':'var(--red)'; }
-  if (pLabel)  { pLabel.textContent = goal ? Math.round(pct)+'% of '+incFmt(goal)+' goal' : 'Set a monthly goal'; pLabel.style.color = pct>=100?'var(--green)':pct>=66?'var(--amber)':'var(--text-2)'; }
+  if (pLabel)  {
+    if (goal) {
+      pLabel.textContent = Math.round(pct)+'% of '+incFmt(goal)+' goal';
+      pLabel.style.color = pct>=100?'var(--green)':pct>=66?'var(--amber)':'var(--text-2)';
+    } else {
+      pLabel.innerHTML = '<span onclick="document.getElementById(\'inc-goal\')?.focus();settingsTab&&settingsTab(\'prefs\')" style="cursor:pointer;color:var(--blue);text-decoration:underline;">Set a monthly goal</span>';
+    }
+  }
   if (pDays&&year===curYear) pDays.textContent = dayOfMonth+' of '+daysInMonth+' days';
   if (pRemain&&goal>0) pRemain.textContent = thisMonthCredit>=goal ? '✓ Goal reached' : incFmt(goal-thisMonthCredit)+' to go';
+
+  // ── Tax rate label ──────────────────────────
+  const taxLabelEl = document.getElementById('inc-tax-rate-label');
+  if (taxLabelEl) taxLabelEl.textContent = '(' + Math.round(TAX_RATE*100) + '% tax · ' + Math.round((1-TAX_RATE)*100) + '% retained)';
 
   // ── After-tax hero ─────────────────────────
   const afterTaxHeroEl = document.getElementById('inc-after-tax-hero');
@@ -8386,7 +8448,7 @@ function buildIncomeTracker() {
   const openHeroEl  = document.getElementById('inc-open-credit-hero');
   const openHeroSub = document.getElementById('inc-open-credit-sub');
   if (openHeroEl)  { openHeroEl.textContent = incFmt(openCredit); openHeroEl.style.color = openCredit > 0 ? 'var(--amber)' : 'var(--text-3)'; }
-  if (openHeroSub) openHeroSub.textContent  = openTrades.length + ' open position' + (openTrades.length !== 1 ? 's' : '') + ' collecting';
+  if (openHeroSub) openHeroSub.textContent  = 'gross premium collected · not yet realized · ' + openTrades.length + ' open position' + (openTrades.length !== 1 ? 's' : '');
 
   const rrEl  = document.getElementById('inc-run-rate');
   const rrSub = document.getElementById('inc-run-rate-sub');
@@ -8490,9 +8552,33 @@ function buildIncomeTracker() {
 
   // ── Metrics (risk/mix still rendered in drill tabs) ──────────
   const bestMonthForMetrics = [...monthly].sort((a,b)=>b.credit-a.credit)[0];
+  // Return on Capital calculation
+  const totalCollateral = [...closed, ...openTrades]
+    .filter(t => !t.isEquity && t.type !== 'shares')
+    .reduce((s,t) => s + (parseFloat(t.strike)||0)*(t.contracts||1)*100, 0);
+  const avgCollateralROC = closed.length > 0
+    ? closed.reduce((s,t) => s + (parseFloat(t.strike)||0)*(t.contracts||1)*100, 0) / closed.length
+    : 0;
+  const rocPct = avgCollateralROC > 0 && rocTrades.length > 0
+    ? (totalYearCredit / avgCollateralROC / Math.max(closed.length,1) * 100).toFixed(1)
+    : null;
+  const annRocPct = avgHold && avgHold > 0 && rocPct
+    ? (parseFloat(rocPct) * (365/avgHold)).toFixed(0)
+    : null;
+
   const riskMetrics = [
-    {label:'Win rate', val:winRate+'%', sub:totalWins+' wins / '+(closed.length-totalWins)+' losses', color:winRate>=70?'var(--green)':winRate>=50?'var(--amber)':'var(--red)'},
-    {label:'Avg hold days', val:avgHold!=null?avgHold+'d':'—', sub:'target ≤15d for fast capital cycling', color:avgHold!=null&&avgHold<=15?'var(--green)':avgHold!=null&&avgHold<=21?'var(--amber)':'var(--red)'},
+    {label:'Win rate',
+      val: winRate!==null ? winRate+'%' : '—',
+      sub: winRate!==null
+        ? totalWins+' wins / '+(closed.length-totalWins)+' losses · '+closed.length+' closed trades'
+        : 'no closed trades yet',
+      color: winRate!==null?(winRate>=70?'var(--green)':winRate>=50?'var(--amber)':'var(--red)'):'var(--text-3)'},
+    {label:'Return on capital',
+      val: rocPct ? rocPct+'%' : '—',
+      sub: annRocPct
+        ? 'per trade · ≈ '+annRocPct+'% annualized at '+avgHold+'d avg hold'
+        : closed.length > 0 ? 'per trade avg' : 'close a trade to calculate',
+      color: rocPct ? (parseFloat(rocPct)>=5?'var(--green)':parseFloat(rocPct)>=2?'var(--amber)':'var(--red)') : 'var(--text-3)'},
     {label:'Capital efficiency', val:returnOnAccount ? returnOnAccount+'%' : '—',
       sub: accountValue > 0
         ? (deployedPct !== null ? deployedPct+'% deployed · ' : '') + (returnOnDeployed ? returnOnDeployed+'% on deployed' : 'add trades to calculate')
@@ -8584,14 +8670,18 @@ function buildIncomeTracker() {
     }
   }
   if (closed.length>=5) {
-    if (winRate<60) insights.push({t:'bad',title:'Win rate of '+winRate+'% is below benchmark',body:'The wheel strategy should produce 70–80% win rates at 10% OTM. A '+winRate+'% rate suggests strikes are too close to the money or positions are being held through earnings. Check avoid window compliance and EMA cloud direction at entry.'});
-    else if (winRate>=80) insights.push({t:'good',title:'Win rate of '+winRate+'% is excellent',body:'Consistent with well-executed wheel strategy. '+winRate+'% across '+closed.length+' trades reflects strong strike selection and timing. Focus on compounding this by closing at 50% and redeploying quickly.'});
-    else insights.push({t:'good',title:'Win rate of '+winRate+'% is solid',body:'In the healthy 60–80% range. Continue setting GTC buy-to-close at 50% of premium on every trade to ensure consistent exits without needing to monitor.'});
+  if (winRate !== null) {
+    if (winRate<60) insights.push({t:'bad',title:'Win rate of '+winRate+'% is below benchmark (closed trades only)',body:'The wheel strategy should produce 70–80% win rates at 10% OTM. A '+winRate+'% rate suggests strikes are too close to the money or positions are being held through earnings. Check avoid window compliance and EMA cloud direction at entry.'});
+    else if (winRate>=80) insights.push({t:'good',title:'Win rate of '+winRate+'% is excellent ('+closed.length+' closed trades)',body:'Consistent with well-executed wheel strategy. '+winRate+'% across '+closed.length+' trades reflects strong strike selection and timing. Focus on compounding this by closing at 50% and redeploying quickly.'});
+    else insights.push({t:'good',title:'Win rate of '+winRate+'% is solid ('+closed.length+' closed trades)',body:'In the healthy 60–80% range. Continue setting GTC buy-to-close at 50% of premium on every trade to ensure consistent exits without needing to monitor.'});
+  } else {
+    insights.push({t:'tip',title:'Win rate: no closed trades yet',body:'Win rate is calculated on closed trades only. Close your first position to start tracking.'});
+  }
   }
   if (avgHold!=null) {
-    if (avgHold>21) insights.push({t:'warn',title:'Avg hold of '+avgHold+' days is longer than optimal',body:'Target is closing at 50% profit around day 7–14. Holding longer ties up collateral and increases risk exposure without proportional premium gain. Set GTC orders immediately after every trade entry.'});
+    if (avgHold>21) insights.push({t:'warn',title:'Avg hold of '+avgHold+' days is longer than typical',body:'Many wheel traders target closing at 50% profit around day 7–14 as a heuristic to free up capital faster. Holding longer ties up collateral and increases risk exposure. Consider setting GTC orders at entry — adjust based on your own risk tolerance and market conditions.'});
     else if (avgHold<=10) insights.push({t:'good',title:'Avg hold of '+avgHold+' days — excellent capital efficiency',body:'Fast cycles at '+avgHold+' days mean you can theoretically run 2+ cycles per month per position. This compounding is what generates consistent income replacement-level returns. Keep it up.'});
-    else insights.push({t:'tip',title:'Avg hold of '+avgHold+' days — room to improve',body:'Getting to sub-10 days average through disciplined 50% GTC exits would meaningfully increase annualized return on the same capital base.'});
+    else insights.push({t:'tip',title:'Avg hold of '+avgHold+' days — room to improve',body:'Getting to sub-10 days average through disciplined 50% GTC exits could meaningfully increase annualized return on the same capital base. This is a heuristic — adjust based on your strategy preferences.'});
   }
   if (nonZeroMonths.length>=3) {
     const stdDev=Math.sqrt(nonZeroMonths.map(m=>(m.credit-avgMonthly)**2).reduce((s,v)=>s+v,0)/nonZeroMonths.length);
@@ -8599,11 +8689,19 @@ function buildIncomeTracker() {
     if (cv>0.5) insights.push({t:'warn',title:'High month-to-month income variability',body:'For income replacement you need consistent monthly cash flow. Smooth it by: (1) Staggering expiry dates — some 14 DTE, some 21 DTE, some 28 DTE. (2) Running smaller positions on more tickers simultaneously. (3) Avoiding long gaps between trades on the same ticker.'});
     else insights.push({t:'good',title:'Monthly income is consistent',body:'Low variance month-to-month is critical for income replacement. Continue diversifying entry timing and ticker selection to maintain this.'});
   }
+  // Concentration: use gross premium across ALL trades (open + closed) as common denominator
   const byT={};
-  closed.forEach(t=>{byT[t.ticker]=(byT[t.ticker]||0)+(t.type==='shares'||t.isEquity?0:(parseFloat(t.premium)||0)*(t.contracts||1)*100);});
+  [...closed, ...openTrades].forEach(t=>{
+    if (t.type==='shares'||t.isEquity) return;
+    byT[t.ticker]=(byT[t.ticker]||0)+(parseFloat(t.premium)||0)*(t.contracts||1)*100;
+  });
+  const totalGrossPrem = Object.values(byT).reduce((s,v)=>s+v,0);
   const sortT=Object.entries(byT).sort((a,b)=>b[1]-a[1]);
-  if (sortT.length>0){const top=sortT[0];const topPct=totalYearCredit>0?Math.round(top[1]/totalYearCredit*100):0;
-    if(topPct>50)insights.push({t:'warn',title:topPct+'% of income from '+top[0]+' — concentration risk',body:'Over half your income from one ticker is fragile. A single bad earnings or gap event on '+top[0]+' could wipe out multiple months of income. Add 2–3 more tickers with staggered earnings dates to diversify the income stream.'});}
+  if (sortT.length>0&&totalGrossPrem>0){
+    const top=sortT[0];
+    const topPct=Math.round(top[1]/totalGrossPrem*100);
+    if(topPct>50)insights.push({t:'warn',title:topPct+'% of total premium from '+top[0]+' — concentration risk',body:'Over half your gross premium collected comes from one ticker. A single bad earnings or gap event on '+top[0]+' could wipe out multiple months of income. Add 2–3 more tickers with staggered earnings dates to diversify.'});
+  }
 
   // Capital efficiency insight
   if (accountValue > 0 && returnOnAccount) {
@@ -8649,20 +8747,24 @@ function buildIncomeTracker() {
       if(m.credit===0&&m.openCredit===0&&!(year===curYear&&i<=curMonth))return '';
       const isCur=year===curYear&&i===curMonth;
       const gPct=goal>0?Math.min(Math.round(m.credit/goal*100),100):0;
-      const wr=m.count?Math.round(m.wins/m.count*100):null;
+      const wr=m.closedCount?Math.round(m.wins/m.closedCount*100):null;
       const putSub = m.putCredit>0&&m.ccCredit>0
         ? `<div style="font-size:10px;color:rgba(59,130,246,.7);margin-top:1px;">${incFmt(m.putCredit)}P · ${incFmt(m.ccCredit)}CC</div>`
-        : m.putCredit>0&&m.count>0
+        : m.putCredit>0&&m.closedCount>0
           ? `<div style="font-size:10px;color:rgba(59,130,246,.6);margin-top:1px;">puts only</div>`
-          : m.ccCredit>0&&m.count>0
+          : m.ccCredit>0&&m.closedCount>0
             ? `<div style="font-size:10px;color:rgba(34,197,94,.6);margin-top:1px;">CCs only</div>`
             : '';
+      const openCount = m.count - m.closedCount;
+      const tradesStr = m.closedCount > 0
+        ? m.closedCount + (openCount > 0 ? ' closed · '+openCount+' open' : ' closed')
+        : openCount > 0 ? openCount + ' open' : '0';
       return '<div style="display:grid;grid-template-columns:60px 1fr 120px 80px 60px 70px 70px;gap:8px;align-items:center;padding:9px 12px;background:var(--card);border:1px solid '+(isCur?'var(--blue)':'var(--border)')+';border-radius:var(--radius-sm);margin-bottom:4px;font-size:12px;">'
         +'<strong style="color:'+(isCur?'var(--blue)':'var(--text)')+';">'+INC_MONTHS[i]+'</strong>'
         +'<div style="background:rgba(255,255,255,.05);border-radius:3px;height:6px;overflow:hidden;"><div style="height:100%;width:'+gPct+'%;background:'+(gPct>=100?'var(--green)':'var(--amber)')+';border-radius:3px;"></div></div>'
         +'<div><span style="color:var(--green);font-weight:600;">'+incFmt(m.credit)+'</span>'+putSub+'</div>'
         +'<span style="color:'+(m.pl>=0?'var(--green)':'var(--red)')+';">'+(m.pl?incFmt(m.pl):'—')+'</span>'
-        +'<span style="color:var(--text-2);">'+m.count+'</span>'
+        +'<span style="color:var(--text-2);font-size:11px;">'+tradesStr+'</span>'
         +'<span style="color:'+(wr===null?'var(--text-3)':wr>=70?'var(--green)':wr>=50?'var(--amber)':'var(--red)')+';">'+(wr!==null?wr+'%':'—')+'</span>'
         +'<span style="color:var(--text-3);">'+(m.avgHold!=null?Math.round(m.avgHold)+'d':'—')+'</span>'
         +'</div>';
@@ -13220,6 +13322,17 @@ async function pullFromTradier() {
               existingEntry.symbol    = sym;
               journal.unshift(existingEntry);
             } else {
+              // Build entrySignals from available context
+              const pullEntrySignals = [];
+              const pullChgPct = ctx.chgPctAtEntry ?? (hmLiveData[parsed.ticker] && hmLiveData[parsed.ticker+'_prev'] ? ((hmLiveData[parsed.ticker] - hmLiveData[parsed.ticker+'_prev']) / hmLiveData[parsed.ticker+'_prev'] * 100) : null);
+              if (pullChgPct != null && pullChgPct <= -2) pullEntrySignals.push('Red day');
+              const pullCloud = ctx.cloudAtEntry || (hmEMAData[parsed.ticker] ? (hmEMAData[parsed.ticker].cloudGreen ? 'green' : 'red') : null);
+              if (pullCloud === 'green') pullEntrySignals.push('Cloud');
+
+              // Signal tier from context or infer from RSI/chg
+              const pullRSI = ctx.rsiAtEntry ?? null;
+              const pullSignalTier = ctx.signalTier ?? (pullChgPct != null && pullChgPct <= -5 && pullRSI != null && pullRSI <= 50 ? 'strong' : pullChgPct != null && pullChgPct <= -2 ? 'cautious' : null);
+
               journal.unshift({
                 id: genId(), source,
                 type: parsed.isCall ? 'cc' : 'put',
@@ -13230,12 +13343,24 @@ async function pullFromTradier() {
                 closePrice: null, closeDate: null,
                 notes: `Filled position · pulled from ${acctNum}`,
                 orderId: matchedOrderId ? String(matchedOrderId) : null,
-                priceAtEntry:  ctx.priceAtEntry  || hmLiveData[parsed.ticker] || null,
-                cloudAtEntry:  ctx.cloudAtEntry  || (hmEMAData[parsed.ticker] ? (hmEMAData[parsed.ticker].cloudGreen ? 'green' : 'red') : null),
-                fngAtEntry:    ctx.fngAtEntry    || ((typeof fgCache !== 'undefined' && fgCache?.value) ? fgCache.value : null),
-                dteAtEntry:    ctx.dteAtEntry    || (parsed.expDate ? Math.round((new Date(parsed.expDate+'T12:00:00') - new Date(pos.date_acquired||today)) / 86400000) : null),
-                earningsDist:  ctx.earningsDist  || null,
-                pctOTMAtEntry: ctx.pctOTMAtEntry || (avgCost && parsed.strike && hmLiveData[parsed.ticker] ? (((hmLiveData[parsed.ticker] - parsed.strike) / hmLiveData[parsed.ticker]) * 100).toFixed(1) : null),
+                // Entry context — from localStorage ctx (set when order placed) or live data
+                priceAtEntry:    ctx.priceAtEntry    || hmLiveData[parsed.ticker] || null,
+                cloudAtEntry:    pullCloud,
+                fngAtEntry:      ctx.fngAtEntry      || ((typeof fgCache !== 'undefined' && fgCache?.value) ? fgCache.value : null),
+                dteAtEntry:      ctx.dteAtEntry      || (parsed.expDate ? Math.round((new Date(parsed.expDate+'T12:00:00') - new Date(pos.date_acquired||today)) / 86400000) : null),
+                earningsDist:    ctx.earningsDist    || null,
+                pctOTMAtEntry:   ctx.pctOTMAtEntry   || (avgCost && parsed.strike && hmLiveData[parsed.ticker] ? (((hmLiveData[parsed.ticker] - parsed.strike) / hmLiveData[parsed.ticker]) * 100).toFixed(1) : null),
+                vixAtEntry:      ctx.vixAtEntry      || window._vixData?.vix || null,
+                deltaAtEntry:    ctx.deltaAtEntry    || null,
+                ivrAtEntry:      ctx.ivrAtEntry      || null,
+                rsiAtEntry:      ctx.rsiAtEntry      || pullRSI,
+                chgPctAtEntry:   ctx.chgPctAtEntry   || pullChgPct,
+                entrySignals:    ctx.entrySignals?.length ? ctx.entrySignals : pullEntrySignals,
+                signalTier:      pullSignalTier,
+                wheelScoreEntry: ctx.wheelScoreEntry || null,
+                weeklyCloudCount:ctx.weeklyCloudCount|| null,
+                dailyCloudCount: ctx.dailyCloudCount || null,
+                spyVsMAEntry:    ctx.spyVsMAEntry    || null,
               });
             }
             posCount++;
@@ -16329,71 +16454,124 @@ function buildCapitalEfficiency() {
     return;
   }
 
-  // Days deployed per trade
+  // ── Core calculations ─────────────────────────────────────────────────────
   const holdData = closed.map(t => {
     const days = calcHoldDays(t);
-    const col  = (t.strike||0) * (t.contracts||1) * 100;
-    return { days, col, pl: calcPL(t)||0 };
-  }).filter(d => d.days && d.days > 0);
+    const col  = (parseFloat(t.strike)||0) * (t.contracts||1) * 100;
+    const pl   = calcPL(t) || 0;
+    const prem = (parseFloat(t.premium)||0) * (t.contracts||1) * 100;
+    return { days, col, pl, prem };
+  }).filter(d => d.days > 0 && d.col > 0);
 
-  const avgHold      = holdData.length ? Math.round(holdData.reduce((s,d)=>s+d.days,0)/holdData.length) : 0;
-  const totalDays    = holdData.reduce((s,d) => s+d.days, 0);
-  const totalPL      = holdData.reduce((s,d) => s+d.pl, 0);
-  const avgCol       = holdData.length ? holdData.reduce((s,d)=>s+d.col,0)/holdData.length : 0;
+  const avgHold     = holdData.length ? Math.round(holdData.reduce((s,d)=>s+d.days,0)/holdData.length) : 0;
+  const totalPL     = holdData.reduce((s,d)=>s+d.pl, 0);
+  const totalPrem   = holdData.reduce((s,d)=>s+d.prem, 0);
+  const totalCol    = holdData.reduce((s,d)=>s+d.col, 0);
+  const cyclesPerYear = avgHold > 0 ? (365/avgHold).toFixed(1) : null;
 
-  // Annualized ROC
-  const annualizedROC = avgCol > 0 && avgHold > 0
-    ? ((totalPL / holdData.length / avgCol) * (365 / avgHold) * 100).toFixed(1)
+  // ── Historical Realized ROC ───────────────────────────────────────────────
+  // Realized P&L / total collateral deployed across closed trades (not annualized)
+  const realizedROC = totalCol > 0 ? (totalPL / totalCol * 100).toFixed(2) : null;
+
+  // ── Projected Annualized ROC ──────────────────────────────────────────────
+  // Formula: (avg P&L per trade / avg collateral per trade) * (365 / avg hold days)
+  // This answers: "if I keep cycling at this pace, what's my annual return on collateral?"
+  const avgPLperTrade  = holdData.length ? totalPL / holdData.length : 0;
+  const avgColperTrade = holdData.length ? totalCol / holdData.length : 0;
+  const projAnnROC = avgColperTrade > 0 && avgHold > 0
+    ? ((avgPLperTrade / avgColperTrade) * (365 / avgHold) * 100).toFixed(1)
     : null;
 
-  // Cycles per year at current avg hold
-  const cyclesPerYear = avgHold > 0 ? (365 / avgHold).toFixed(1) : null;
+  // ── Current Cycle Yield ───────────────────────────────────────────────────
+  // Open premium collected / capital at risk on open positions
+  const deployed       = open.reduce((s,t)=>(parseFloat(t.strike)||0)*(t.contracts||1)*100+s, 0);
+  const openPremium    = open.reduce((s,t)=>(parseFloat(t.premium)||0)*(t.contracts||1)*100+s, 0);
+  const cycleYield     = deployed > 0 ? (openPremium/deployed*100).toFixed(1) : null;
+  const deployedPct    = acct > 0 ? Math.round(deployed/acct*100) : 0;
+  const available      = Math.max(0, acct - deployed);
 
-  // Idle capital estimate — days between trades
+  // ── Idle days ────────────────────────────────────────────────────────────
   const sortedCloses = [...closed].filter(t=>t.closeDate).sort((a,b)=>new Date(a.closeDate)-new Date(b.closeDate));
   let idleDays = 0;
   for (let i = 1; i < sortedCloses.length; i++) {
-    const gap = Math.round((new Date(sortedCloses[i].openDate)-new Date(sortedCloses[i-1].closeDate))/86400000);
+    const gap = Math.round((new Date(sortedCloses[i].openDate+'T12:00:00')-new Date(sortedCloses[i-1].closeDate+'T12:00:00'))/86400000);
     if (gap > 0) idleDays += gap;
   }
 
-  // Current deployment
-  const deployed     = open.reduce((s,t)=>(t.strike||0)*(t.contracts||1)*100+s, 0);
-  const deployedPct  = acct > 0 ? Math.round(deployed/acct*100) : 0;
+  const tile = (label, val, sub, color='var(--text)', extra='') =>
+    `<div class="tile">
+      <div class="tile-label">${label}</div>
+      <div class="tile-value" style="color:${color};font-size:20px;">${val}</div>
+      <div class="tile-sub">${sub}</div>
+      ${extra}
+    </div>`;
+
+  const bar = (pct, color) =>
+    `<div style="margin-top:8px;background:var(--surface);border-radius:4px;height:5px;overflow:hidden">
+      <div style="height:100%;width:${Math.min(100,pct)}%;background:${color}"></div>
+    </div>`;
 
   el.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Avg Hold Days</div>
-        <div style="font-size:28px;font-weight:800;color:var(--blue)">${avgHold}d</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">target ≤15d for fast cycling</div>
-        ${cyclesPerYear?`<div style="font-size:11px;color:var(--text-2);margin-top:4px">${cyclesPerYear} cycles/year at current pace</div>`:''}
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Annualized ROC</div>
-        <div style="font-size:28px;font-weight:800;color:${annualizedROC>20?'var(--green)':annualizedROC>10?'var(--amber)':'var(--red)'}">${annualizedROC?annualizedROC+'%':'—'}</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">return on collateral deployed</div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Capital Deployed Now</div>
-        <div style="font-size:28px;font-weight:800">${deployedPct}%</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">$${Math.round(deployed).toLocaleString()} of $${Math.round(acct).toLocaleString()}</div>
-        <div style="margin-top:8px;background:var(--surface);border-radius:4px;height:6px;overflow:hidden">
-          <div style="height:100%;width:${Math.min(100,deployedPct)}%;background:${deployedPct>80?'var(--red)':deployedPct>50?'var(--green)':'var(--amber)'}"></div>
-        </div>
-      </div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-        <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Idle Days (est.)</div>
-        <div style="font-size:28px;font-weight:800;color:${idleDays>30?'var(--red)':'var(--text)'}">${idleDays}d</div>
-        <div style="font-size:11px;color:var(--text-3);margin-top:4px">between close and next open</div>
-        <div style="font-size:11px;color:var(--amber);margin-top:2px">idle capital = missed premium</div>
-      </div>
+    <!-- Row 1: Capital position -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:8px;">Capital position</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+      ${tile('Capital utilization', deployedPct+'%',
+        '$'+Math.round(deployed/1000).toFixed(0)+'k of $'+Math.round(acct/1000).toFixed(0)+'k',
+        deployedPct>80?'var(--red)':deployedPct>40?'var(--green)':'var(--amber)',
+        bar(deployedPct, deployedPct>80?'var(--red)':deployedPct>40?'var(--green)':'var(--amber)'))}
+      ${tile('Capital deployed', '$'+Math.round(deployed).toLocaleString(),
+        open.length+' open position'+(open.length!==1?'s':''),
+        'var(--text)')}
+      ${tile('Capital available', '$'+Math.round(available).toLocaleString(),
+        'for new positions',
+        available > 10000 ? 'var(--green)' : 'var(--amber)')}
+      ${tile('Current cycle yield', cycleYield ? cycleYield+'%' : '—',
+        cycleYield ? '$'+Math.round(openPremium).toLocaleString()+' premium / $'+Math.round(deployed/1000).toFixed(0)+'k deployed' : 'no open positions',
+        cycleYield && parseFloat(cycleYield)>=4?'var(--green)':cycleYield?'var(--amber)':'var(--text-3)')}
     </div>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px">
-      <div style="font-size:12px;font-weight:700;margin-bottom:10px">Efficiency Insights</div>
-      ${avgHold > 20 ? `<div style="font-size:12px;color:var(--amber);margin-bottom:6px">⚠️ Avg hold of ${avgHold}d is longer than the 15d target. Close at 50% and redeploy faster to increase cycles per year.</div>` : `<div style="font-size:12px;color:var(--green);margin-bottom:6px">✅ Avg hold of ${avgHold}d is within the ≤15d target. Good capital velocity.</div>`}
-      ${deployedPct < 50 ? `<div style="font-size:12px;color:var(--amber);margin-bottom:6px">⚠️ Only ${deployedPct}% of capital deployed. Consider adding more positions to increase income.</div>` : ''}
-      ${annualizedROC && parseFloat(annualizedROC) > 30 ? `<div style="font-size:12px;color:var(--green)">✅ ${annualizedROC}% annualized ROC is strong. Compounding this with faster cycling would be significant.</div>` : ''}
+
+    <!-- Row 2: Performance metrics -->
+    <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:8px;">Performance metrics <span style="font-size:10px;font-weight:400;text-transform:none;color:var(--text-3);">· based on ${holdData.length} closed trade${holdData.length!==1?'s':''}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+      ${tile('Avg hold', avgHold+'d',
+        cyclesPerYear ? cyclesPerYear+' cycles/year at current pace' : '—',
+        avgHold<=15?'var(--green)':avgHold<=21?'var(--amber)':'var(--red)')}
+      ${tile('Historical ROC', realizedROC ? realizedROC+'%' : '—',
+        'realized P&L ÷ collateral deployed',
+        realizedROC && parseFloat(realizedROC)>0?'var(--green)':'var(--red)')}
+      ${tile('Projected annualized ROC', projAnnROC ? projAnnROC+'%' : '—',
+        projAnnROC ? `(avg P&L/trade ÷ avg collateral) × (365 ÷ ${avgHold}d)` : holdData.length < 2 ? 'need ≥2 closed trades' : 'N/A · requires ≥1 day hold',
+        projAnnROC ? (parseFloat(projAnnROC)>=20?'var(--green)':parseFloat(projAnnROC)>=10?'var(--amber)':'var(--red)') : 'var(--text-3)')}
+      ${tile('Idle days', idleDays+'d',
+        'between close and next open',
+        idleDays>14?'var(--amber)':'var(--text-3)')}
+    </div>
+
+    <!-- Efficiency insights -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--text);">Efficiency insights</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${avgHold > 21
+          ? `<div style="font-size:12px;color:var(--amber);">⚠ Avg hold of ${avgHold}d is above the 15d heuristic. Earlier profit-taking (e.g. 50% GTC) can increase capital turnover — but evaluate against assignment risk and remaining premium before acting.</div>`
+          : avgHold <= 15
+            ? `<div style="font-size:12px;color:var(--green);">✅ Avg hold of ${avgHold}d is within the ≤15d target. Good capital velocity.</div>`
+            : `<div style="font-size:12px;color:var(--text-2);">ℹ Avg hold of ${avgHold}d is moderate. Closing positions at 50% of premium is one approach to accelerate cycling — adjust based on your risk tolerance.</div>`}
+        ${deployedPct < 40
+          ? `<div style="font-size:12px;color:var(--amber);">⚠ Only ${deployedPct}% of capital deployed ($${Math.round(available).toLocaleString()} available). More positions would increase income potential — balance against concentration risk.</div>`
+          : deployedPct > 85
+            ? `<div style="font-size:12px;color:var(--red);">⚠ ${deployedPct}% deployed is high. Leave headroom for assignments and margin calls — consider staying under 80%.</div>`
+            : `<div style="font-size:12px;color:var(--green);">✅ ${deployedPct}% deployed is a healthy utilization level.</div>`}
+        ${projAnnROC && holdData.length < 3
+          ? `<div style="font-size:12px;color:var(--text-3);">ℹ Projected ROC of ${projAnnROC}% is based on ${holdData.length} trade${holdData.length!==1?'s':''} — treat as directional until you have more history.</div>`
+          : projAnnROC && parseFloat(projAnnROC) >= 20
+            ? `<div style="font-size:12px;color:var(--green);">✅ Projected ${projAnnROC}% annualized ROC is strong for a wheel strategy. Maintain discipline on strike selection and exit timing to sustain this.</div>`
+            : ''}
+      </div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-3);line-height:1.6;">
+        💡 <strong style="color:var(--text);">Historical ROC</strong> = realized P&L ÷ total collateral deployed (${holdData.length} trades).
+        <strong style="color:var(--text);">Projected annualized ROC</strong> = (avg P&L/trade ÷ avg collateral/trade) × (365 ÷ avg hold days) — what you'd earn annually if current economics persist.
+        These are projections, not guarantees.
+      </div>
     </div>`;
 }
 
@@ -20259,24 +20437,36 @@ function renderSignalAnalytics(closed, el) {
     { label: 'Close (<4%)',      trades: closed.filter(t => { const v=otmOf(t); return v!=null&&v<4; }) },
   ].filter(b => b.trades.length > 0);
 
+  // ── Data Confidence ─────────────────────────────────────────────────────
+  const confidence = closed.length >= 100 ? {label:'Strong', color:'var(--green)'}
+    : closed.length >= 51  ? {label:'Good',    color:'var(--green)'}
+    : closed.length >= 21  ? {label:'Moderate', color:'var(--amber)'}
+    : closed.length >= 6   ? {label:'Low',      color:'var(--amber)'}
+    : {label:'Very Low',   color:'var(--red)'};
+  const minSample = 5; // below this, show "insufficient sample" warning
+
   const tileHTML = (label, val, sub, color='var(--text)') =>
     `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value" style="color:${color};">${val}</div><div class="tile-sub">${sub}</div></div>`;
 
+  // rowHTML with sample-size badge and muted bar for small n
   const rowHTML = (label, n, wins, trades) => {
     const wr = n ? Math.round(wins/n*100) : 0;
-    const barW = Math.round(wr);
+    // Scale bar visually based on sample size — small n gets thin bar
+    const barW = n >= minSample ? Math.round(wr) : Math.round(wr * 0.4);
     const color = winColor(wins, n);
     const ann = avgAnn(trades);
     const pl  = avgPL(trades);
     const days= avgDays(trades);
-    return `<div style="display:grid;grid-template-columns:160px 60px 1fr 80px 90px 80px;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);">
-      <div style="font-size:13px;font-weight:500;color:var(--text);">${label}</div>
-      <div style="font-size:12px;color:var(--text-3);">${n} trade${n!==1?'s':''}</div>
+    const sampleBadge = n < minSample
+      ? `<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:10px;background:rgba(245,158,11,.12);color:var(--amber);margin-left:4px;">n=${n} · insufficient sample</span>`
+      : `<span style="font-size:10px;color:var(--text-3);margin-left:4px;">(${n})</span>`;
+    return `<div style="display:grid;grid-template-columns:160px 1fr 80px 90px 80px;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);">
+      <div style="font-size:13px;font-weight:500;color:var(--text);">${label}${sampleBadge}</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <div style="flex:1;height:6px;background:var(--border-strong);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${barW}%;background:${color};border-radius:3px;transition:width .4s;"></div>
+          <div style="height:100%;width:${barW}%;background:${color};border-radius:3px;opacity:${n>=minSample?1:0.5};transition:width .4s;"></div>
         </div>
-        <span style="font-size:13px;font-weight:700;color:${color};min-width:36px;">${fmtWR(wins,n)}</span>
+        <span style="font-size:13px;font-weight:700;color:${color};min-width:52px;">${fmtWR(wins,n)} ${n>=2?`(${wins}/${n})`:'('+n+')'}</span>
       </div>
       <div style="font-size:12px;color:${ann!=null&&ann>=0?'var(--green)':'var(--red)'};">${fmtAnn(ann)}</div>
       <div style="font-size:12px;color:${pl!=null&&pl>=0?'var(--green)':'var(--red)'};">${fmtPL(pl)}</div>
@@ -20284,54 +20474,103 @@ function renderSignalAnalytics(closed, el) {
     </div>`;
   };
 
-  const sectionHTML = (title, rows) => `
+  const sectionHTML = (title, rows, hasData) => {
+    if (!hasData) return ''; // skip entirely if no data — collected in footer
+    return `
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
       <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">${title}</span>
-        <div style="display:grid;grid-template-columns:160px 60px 1fr 80px 90px 80px;gap:12px;padding-right:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">
-          <span></span><span></span><span>Win rate</span><span>Ann. return</span><span>Avg P&L</span><span>Avg hold</span>
+        <div style="display:grid;grid-template-columns:160px 1fr 80px 90px 80px;gap:12px;padding-right:0;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">
+          <span></span><span>Win rate</span><span>Ann. return</span><span>Avg P&L</span><span>Avg hold</span>
         </div>
       </div>
       ${rows}
     </div>`;
+  };
 
   const noData = (msg) => `<div style="padding:16px 14px;color:var(--text-3);font-size:12px;font-style:italic;">${msg}</div>`;
 
+  // Track empty sections for the footer
+  const emptySections = [];
+
+  // Check which sections have data
+  const hasSignalData = sigStats.some(s=>s.n>0) || noSignal.length > 0;
+  const hasCloudData  = cloudG.length > 0 || cloudR.length > 0;
+  const hasIVRData    = ivrBuckets.some(b => b.label !== 'No IVR data');
+  const hasFNGData    = fngBuckets.length > 0;
+  const hasVIXData    = closed.some(t => t.vixAtEntry != null);
+  const hasDeltaData  = closed.some(t => t.deltaAtEntry != null);
+  const hasWheelScore = closed.some(t => t.wheelScoreEntry != null);
+  const hasOTMData    = otmBuckets.length > 0;
+  const hasRSIData    = rsiBuckets.length > 0;
+  const hasSigTier    = sigTierBuckets.some(b => b.label !== 'No signal data');
+  const hasCapData    = closed.some(t => t.profitCapture != null);
+  const hasReasons    = closed.some(t => t.closeReason);
+
+  const emptyList = [
+    !hasSignalData && 'Entry signal',
+    !hasCloudData  && 'EMA cloud',
+    !hasIVRData    && 'IV rank',
+    !hasFNGData    && 'Fear & Greed',
+    !hasVIXData    && 'VIX',
+    !hasDeltaData  && 'Delta',
+    !hasWheelScore && 'Wheel Score',
+    !hasOTMData    && '% OTM',
+    !hasRSIData    && 'RSI',
+    !hasSigTier    && 'Signal tier',
+    !hasCapData    && 'Profit capture',
+    !hasReasons    && 'Close reason',
+  ].filter(Boolean);
+
   el.innerHTML = `
+    <!-- Data confidence banner -->
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);">Data confidence</div>
+          <div style="font-size:16px;font-weight:800;color:${confidence.color};">${confidence.label}</div>
+        </div>
+        <div style="width:1px;height:32px;background:var(--border);"></div>
+        <div style="font-size:12px;color:var(--text-3);line-height:1.5;">
+          <strong style="color:var(--text);">${closed.length} closed trade${closed.length!==1?'s':''}</strong> · 
+          ${closed.length < 6 ? 'Need 6+ trades for Low confidence' : closed.length < 21 ? 'Need 21+ for Moderate confidence' : closed.length < 51 ? 'Need 51+ for Good confidence' : 'Building statistical significance'}
+        </div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--text-3);">
+        ${closed.length < minSample ? `⚠ Rows with <${minSample} trades show <span style="color:var(--amber);font-weight:600;">insufficient sample</span>` : `Rows with <${minSample} trades are flagged`}
+      </div>
+    </div>
+
     <!-- Summary tiles -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;">
-      ${tileHTML('Closed trades', closed.length, 'in journal', 'var(--blue)')}
-      ${tileHTML('Overall win rate', fmtWR(totalWins, closed.length), `${totalWins} wins · ${closed.length-totalWins} losses`, winColor(totalWins,closed.length))}
+      ${tileHTML('Closed trades', closed.length, `Data confidence: ${confidence.label}`, confidence.color)}
+      ${tileHTML('Overall win rate', fmtWR(totalWins, closed.length)+` (${totalWins}/${closed.length})`, `${totalWins} wins · ${closed.length-totalWins} losses`, winColor(totalWins,closed.length))}
       ${tileHTML('Total P&L', fmtPL(totalPL), 'all closed trades', totalPL>=0?'var(--green)':'var(--red)')}
-      ${tileHTML('Avg annualized', fmtAnn(totalAnn), `avg ${fmtDays(totalDays)} hold`, totalAnn!=null&&totalAnn>=0?'var(--green)':'var(--red)')}
+      ${tileHTML('Avg annualized', fmtAnn(totalAnn), `avg ${fmtDays(totalDays)} hold${closed.length < minSample ? ' · limited data' : ''}`, totalAnn!=null&&totalAnn>=0?'var(--green)':'var(--red)')}
     </div>
 
     <!-- By entry signal -->
     ${sectionHTML('By entry signal', [
       ...sigStats.filter(s=>s.n>0).map(s => rowHTML(s.sig, s.n, s.wins, s.trades)),
       noSignal.length ? rowHTML('No signal tagged', noSignal.length, noSignal.filter(isWin).length, noSignal) : '',
-      sigStats.every(s=>s.n===0) && !noSignal.length ? noData('No entry signal data yet — tag signals when logging trades.') : ''
-    ].join(''))}
+    ].join(''), hasSignalData)}
 
     <!-- By EMA cloud -->
     ${sectionHTML('By EMA cloud at entry', [
       cloudG.length ? rowHTML('☁ Green cloud', cloudG.length, cloudG.filter(isWin).length, cloudG) : '',
       cloudR.length ? rowHTML('⛈ Red cloud',   cloudR.length, cloudR.filter(isWin).length, cloudR) : '',
       cloudNone.length ? rowHTML('Not recorded', cloudNone.length, cloudNone.filter(isWin).length, cloudNone) : '',
-      !cloudG.length && !cloudR.length ? noData('No cloud data yet — EMA cloud is captured automatically when pulling from Tradier.') : ''
-    ].join(''))}
+    ].join(''), hasCloudData)}
 
     <!-- By IVR -->
-    ${sectionHTML('By IV rank at entry' + (backfilledCount > 0 ? ` <span style="font-size:9px;font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;">(${backfilledCount} estimated from current IV)</span>` : ''), [
-      ivrBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-      ivrBuckets.length === 1 && ivrBuckets[0].label === 'No IVR data' ? noData('No IVR data — add a Massive/Polygon key in Settings for auto-calculation, or enter IVR when logging trades.') : ''
-    ].join(''))}
+    ${sectionHTML('By IV rank at entry' + (backfilledCount > 0 ? ` <span style="font-size:9px;font-weight:400;color:var(--text-3);text-transform:none;letter-spacing:0;">(${backfilledCount} estimated)</span>` : ''), [
+      ivrBuckets.filter(b=>b.label!=='No IVR data').map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
+    ].join(''), hasIVRData)}
 
     <!-- By F&G -->
     ${sectionHTML('By Fear & Greed at entry', [
       fngBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-      !fngBuckets.length ? noData('No Fear & Greed data yet — captured automatically from the live Fear & Greed index.') : ''
-    ].join(''))}
+    ].join(''), hasFNGData)}
 
     <!-- By VIX at entry -->
     ${sectionHTML('By VIX at entry', [
@@ -20340,8 +20579,7 @@ function renderSignalAnalytics(closed, el) {
         { label: 'VIX 15–20 (moderate)',     trades: closed.filter(t => t.vixAtEntry != null && t.vixAtEntry >= 15 && t.vixAtEntry < 20) },
         { label: 'VIX < 15 (thin premium)',  trades: closed.filter(t => t.vixAtEntry != null && t.vixAtEntry < 15) },
       ].filter(b => b.trades.length > 0).map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades))),
-      !closed.some(t => t.vixAtEntry != null) ? noData('No VIX data yet — captured automatically on new trades.') : ''
-    ].join(''))}
+    ].join(''), hasVIXData)}
 
     <!-- By delta at entry -->
     ${sectionHTML('By delta at entry', [
@@ -20350,8 +20588,7 @@ function renderSignalAnalytics(closed, el) {
         { label: 'Delta 0.25–0.35 (standard)',   trades: closed.filter(t => t.deltaAtEntry != null && t.deltaAtEntry >= 0.25 && t.deltaAtEntry < 0.35) },
         { label: 'Delta < 0.25 (conservative)',  trades: closed.filter(t => t.deltaAtEntry != null && t.deltaAtEntry < 0.25) },
       ].filter(b => b.trades.length > 0).map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades))),
-      !closed.some(t => t.deltaAtEntry != null) ? noData('No delta data yet — captured automatically on new trades.') : ''
-    ].join(''))}
+    ].join(''), hasDeltaData)}
 
     <!-- By Wheel Score at entry -->
     ${sectionHTML('By Wheel Score at entry', [
@@ -20360,26 +20597,22 @@ function renderSignalAnalytics(closed, el) {
         { label: '🟡 Medium quality (55–74)', trades: closed.filter(t => t.wheelScoreEntry != null && t.wheelScoreEntry >= 55 && t.wheelScoreEntry < 75) },
         { label: '🔴 Low quality (<55)', trades: closed.filter(t => t.wheelScoreEntry != null && t.wheelScoreEntry < 55) },
       ].filter(b => b.trades.length > 0).map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades))),
-      !closed.some(t => t.wheelScoreEntry != null) ? noData('No Wheel Score data yet — captured automatically on new trades.') : ''
-    ].join(''))}
+    ].join(''), hasWheelScore)}
 
     <!-- By % OTM -->
     ${sectionHTML('By % OTM at entry', [
       otmBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-      !otmBuckets.length ? noData('No OTM data yet — requires stock price at entry to be recorded.') : ''
-    ].join(''))}
+    ].join(''), hasOTMData)}
 
     <!-- By RSI at entry -->
     ${sectionHTML('By RSI at entry', [
       rsiBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-      !rsiBuckets.length ? noData('No RSI data yet — captured automatically when placing orders through the CSP slider.') : ''
-    ].join(''))}
+    ].join(''), hasRSIData)}
 
     <!-- By signal tier -->
     ${sectionHTML('By signal tier', [
       sigTierBuckets.filter(b => b.label !== 'No signal data').map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-      sigTierBuckets.every(b => b.label === 'No signal data') ? noData('No signal tier data yet — captured automatically from Strong/Cautious Trade signals.') : ''
-    ].join(''))}
+    ].join(''), hasSigTier)}
 
     <!-- By profit capture % -->
     ${(() => {
@@ -20389,10 +20622,9 @@ function renderSignalAnalytics(closed, el) {
         { label: '< 40% captured (early exit)',        trades: closed.filter(t => t.profitCapture != null && t.profitCapture < 40) },
         { label: 'Assigned (0% capture)',              trades: closed.filter(t => t.profitCapture === 0 || t.closeReason === 'assigned') },
       ].filter(b => b.trades.length > 0);
-      return sectionHTML('By profit capture %', [
+      return sectionHTML('By profit capture %',
         capBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''),
-        !capBuckets.length ? noData('No profit capture data yet — stamped automatically when trades close.') : ''
-      ].join(''));
+        capBuckets.length > 0);
     })()}
 
     <!-- By close reason -->
@@ -20433,11 +20665,11 @@ function renderSignalAnalytics(closed, el) {
           <span></span><span></span><span>% of closes</span><span>Win rate</span><span>Avg P&L</span><span>Ann.</span><span>Avg hold</span>
         </div>
       </div>`;
-      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
+      return hasReasons ? `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
         ${header}
         ${rows || noData('No close reasons recorded yet — use the Close button on open trades to record why you closed.')}
         ${withReason.length < closed.length ? `<div style="padding:8px 14px;font-size:11px;color:var(--text-3);border-top:1px solid var(--border);">${closed.length - withReason.length} closed trade${closed.length-withReason.length!==1?'s':''} have no reason recorded.</div>` : ''}
-      </div>`;
+      </div>` : '';
     })()}
 
     <!-- Entry Quality Score breakdown -->
@@ -20552,7 +20784,115 @@ function renderSignalAnalytics(closed, el) {
       </div>`;
     })()}
 
-    <div style="font-size:11px;color:var(--text-3);margin-top:8px;text-align:center;">Win = positive P&L. Annualized return = (return% ÷ days held) × 365. Only closed non-assignment trades shown.${backfilledCount > 0 ? ` IVR marked "estimated" uses current 52-week IV range as a proxy for historical IVR at entry — add exact IVR when logging trades for precision.` : ''}</div>
+    ${emptyList.length > 0 ? `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text-3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em;">
+        ${emptyList.length} dimension${emptyList.length!==1?'s':''} will populate automatically as trades accumulate
+      </div>
+      <div style="font-size:11px;color:var(--text-3);">${emptyList.join(' · ')}</div>
+    </div>` : ''}
+
+    <!-- #8: Median P&L & avg winner/loser (needs 10+ trades) -->
+    ${closed.length >= 10 ? (() => {
+      const plVals = closed.map(t => calcPL(t)).filter(v => v != null).sort((a,b)=>a-b);
+      const median = plVals.length % 2 === 0
+        ? (plVals[plVals.length/2-1] + plVals[plVals.length/2]) / 2
+        : plVals[Math.floor(plVals.length/2)];
+      const winners = plVals.filter(v => v > 0);
+      const losers  = plVals.filter(v => v < 0);
+      const avgWin  = winners.length ? winners.reduce((a,b)=>a+b,0)/winners.length : null;
+      const avgLoss = losers.length  ? losers.reduce((a,b)=>a+b,0)/losers.length   : null;
+      const profitFactor = avgWin && avgLoss ? (Math.abs(avgWin * winners.length) / Math.abs(avgLoss * losers.length)).toFixed(2) : null;
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:12px;">P&L Distribution</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          ${[
+            ['Median P&L', fmtPL(median), 'middle of distribution', median>=0?'var(--green)':'var(--red)'],
+            ['Avg winner', avgWin?'+$'+Math.round(avgWin).toLocaleString():'—', winners.length+' winning trades', 'var(--green)'],
+            ['Avg loser',  avgLoss?'-$'+Math.abs(Math.round(avgLoss)).toLocaleString():'—', losers.length+' losing trades', 'var(--red)'],
+            ['Profit factor', profitFactor||'—', 'gross wins ÷ gross losses', profitFactor&&parseFloat(profitFactor)>=1.5?'var(--green)':profitFactor?'var(--amber)':'var(--text-3)'],
+          ].map(([l,v,s,c])=>`<div class="tile"><div class="tile-label">${l}</div><div class="tile-value" style="color:${c};font-size:18px;">${v}</div><div class="tile-sub">${s}</div></div>`).join('')}
+        </div>
+      </div>`;
+    })() : `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;opacity:.6;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:4px;">P&L Distribution · Median, Avg Winner/Loser, Profit Factor</div>
+      <div style="font-size:12px;color:var(--text-3);">Unlocks at 10 closed trades · currently ${closed.length}/10</div>
+    </div>`}
+
+    <!-- #11-12: Signal & Wheel Score effectiveness (needs 20+ trades) -->
+    ${closed.length >= 20 ? (() => {
+      const tiers = [
+        { label: 'Strong signal', trades: closed.filter(t => t.signalTier === 'strong') },
+        { label: 'Cautious signal', trades: closed.filter(t => t.signalTier === 'cautious') },
+        { label: 'No signal', trades: closed.filter(t => !t.signalTier) },
+      ].filter(t => t.trades.length > 0);
+      return sectionHTML('Signal tier effectiveness', tiers.map(t => rowHTML(t.label, t.trades.length, t.trades.filter(isWin).length, t.trades)).join(''), tiers.length > 0);
+    })() : `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;opacity:.6;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:4px;">Signal Effectiveness · Strong vs Cautious vs No Signal</div>
+      <div style="font-size:12px;color:var(--text-3);">Unlocks at 20 closed trades · currently ${closed.length}/20</div>
+    </div>`}
+
+    <!-- #12: Wheel Score effectiveness (needs 20+ trades) -->
+    ${closed.length >= 20 && closed.some(t => t.wheelScoreEntry != null) ? (() => {
+      const wsBuckets = [
+        { label: '🟢 Score 80–100', trades: closed.filter(t => t.wheelScoreEntry >= 80) },
+        { label: '🟡 Score 60–79',  trades: closed.filter(t => t.wheelScoreEntry >= 60 && t.wheelScoreEntry < 80) },
+        { label: '🔴 Score < 60',   trades: closed.filter(t => t.wheelScoreEntry != null && t.wheelScoreEntry < 60) },
+      ].filter(b => b.trades.length > 0);
+      return sectionHTML('Wheel Score effectiveness', wsBuckets.map(b => rowHTML(b.label, b.trades.length, b.trades.filter(isWin).length, b.trades)).join(''), wsBuckets.length > 0);
+    })() : closed.length < 20 ? '' : `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;opacity:.6;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:4px;">Wheel Score Effectiveness · Does a Higher Score Predict Better Outcomes?</div>
+      <div style="font-size:12px;color:var(--text-3);">Wheel Score data not yet captured on your trades</div>
+    </div>`}
+
+    <!-- #14: Auto-surfaced best conditions (needs 50+ trades) -->
+    ${closed.length >= 50 ? (() => {
+      // Find best condition combinations automatically
+      const condFns = {
+        'Green cloud':      t => t.cloudAtEntry === 'green',
+        'IVR ≥ 50':        t => t.ivrAtEntry != null && t.ivrAtEntry >= 50,
+        'Fear (F&G ≤ 40)': t => t.fngAtEntry != null && t.fngAtEntry <= 40,
+        'OTM 8–15%':       t => { const v=t.pctOTMAtEntry; return v!=null&&v>=8&&v<=15; },
+        'RSI ≤ 45':        t => t.rsiAtEntry != null && t.rsiAtEntry <= 45,
+        'Strong signal':   t => t.signalTier === 'strong',
+      };
+      const ckeys = Object.keys(condFns);
+      const combos = [];
+      for (let i=0;i<ckeys.length;i++) for (let j=i+1;j<ckeys.length;j++) {
+        const trades = closed.filter(t => condFns[ckeys[i]](t) && condFns[ckeys[j]](t));
+        if (trades.length >= 5) {
+          const wins = trades.filter(isWin).length;
+          combos.push({ label: ckeys[i]+' + '+ckeys[j], n: trades.length, wins, wr: Math.round(wins/trades.length*100), pl: avgPL(trades) });
+        }
+      }
+      combos.sort((a,b) => b.wr - a.wr || b.n - a.n);
+      const top = combos.slice(0,5);
+      const worst = [...combos].sort((a,b)=>a.wr-b.wr).slice(0,3);
+      if (!top.length) return '';
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);">
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">🔥 Best Entry Conditions</span>
+          <span style="font-size:11px;color:var(--text-3);margin-left:8px;">auto-surfaced from your trade history · min 5 trades per combo</span>
+        </div>
+        ${top.map((c,i)=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);">
+          <div style="font-size:13px;font-weight:800;color:var(--text-3);min-width:20px;">#${i+1}</div>
+          <div style="flex:1;font-size:12px;font-weight:600;color:var(--text);">${c.label} <span style="font-size:10px;color:var(--text-3);">(${c.n} trades)</span></div>
+          <div style="font-size:16px;font-weight:800;color:${c.wr>=70?'var(--green)':c.wr>=50?'var(--amber)':'var(--red)'};">${c.wr}% WR</div>
+          <div style="font-size:12px;color:${(c.pl||0)>=0?'var(--green)':'var(--red)'};">${fmtPL(c.pl)} avg</div>
+        </div>`).join('')}
+        ${worst.length ? `<div style="padding:10px 14px;border-top:2px solid var(--border);background:rgba(239,68,68,.03);">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:6px;">⚠ Weakest conditions</div>
+          ${worst.map(c=>`<div style="font-size:12px;color:var(--text-2);margin-bottom:3px;">${c.label} · ${c.wr}% WR · ${c.n} trades</div>`).join('')}
+        </div>` : ''}
+      </div>`;
+    })() : `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;opacity:.6;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:4px;">🔥 Best Entry Conditions · Auto-Surfaced from Your History</div>
+      <div style="font-size:12px;color:var(--text-3);">Unlocks at 50 closed trades · currently ${closed.length}/50
+        <div style="margin-top:6px;height:4px;background:var(--surface);border-radius:2px;overflow:hidden;"><div style="height:100%;width:${Math.min(100,closed.length/50*100)}%;background:var(--blue);border-radius:2px;"></div></div>
+      </div>
+    </div>`}
+
+    <div style="font-size:11px;color:var(--text-3);margin-top:8px;text-align:center;">Win = positive P&L. Annualized return = (return% ÷ days held) × 365. Only closed non-assignment trades shown.${backfilledCount > 0 ? ` IVR marked "estimated" uses current 52-week IV range as a proxy for historical IVR at entry.` : ''}</div>
   `;
 }
 
@@ -20563,6 +20903,7 @@ function renderSignalAnalytics(closed, el) {
 function buildWheelCycles() {
   const el = document.getElementById('wheel-cycles-content');
   if (!el) return;
+  try {
 
   const journal = JOURNAL || [];
   if (!journal.length) {
@@ -20717,16 +21058,35 @@ function buildWheelCycles() {
   // ── Summary tiles ─────────────────────────────────────────────────────────
   const complete  = cycles.filter(c => c.status === 'complete');
   const active    = cycles.filter(c => c.status !== 'complete' && c.status !== 'cc_only');
-  const totalPL   = cycles.reduce((s,c) => s + (c.totalPL||0), 0);
-  const avgAnnC   = complete.filter(c => c.annualized !== null);
+
+  // Fix 1: Realized P&L = completed cycles only
+  const realizedPL  = complete.reduce((s,c) => s + (c.totalPL||0), 0);
+
+  // Fix 2: Open Premium = gross premium on active cycles (all legs not yet closed)
+  const openPremium = active.reduce((s,c) => {
+    const putPrem = (c.put && !c.put.closeDate) ? (parseFloat(c.put.premium)||0)*(c.put.contracts||1)*100 : 0;
+    const ccPrem  = (c.ccs||[]).filter(cc => !cc.closeDate).reduce((s2,cc) => s2 + (parseFloat(cc.premium)||0)*(cc.contracts||1)*100, 0);
+    return s + putPrem + ccPrem;
+  }, 0);
+
+  // Fix 3: Capital at Risk = assignment obligations on active put_open cycles
+  const capitalAtRisk = active
+    .filter(c => c.status === 'put_open' && c.put)
+    .reduce((s,c) => s + (parseFloat(c.put.strike)||0)*(c.put.contracts||1)*100, 0);
+
+  // Fix 4: Annualized — exclude 0-day cycles
+  const avgAnnC   = complete.filter(c => c.annualized !== null && c.daysTotal > 0);
   const avgAnn    = avgAnnC.length
     ? (avgAnnC.reduce((s,c) => s + parseFloat(c.annualized), 0) / avgAnnC.length).toFixed(0)
     : null;
-  const avgDays   = complete.filter(c=>c.daysTotal).length
-    ? Math.round(complete.filter(c=>c.daysTotal).reduce((s,c)=>s+c.daysTotal,0)/complete.filter(c=>c.daysTotal).length)
+  const avgDays   = complete.filter(c=>c.daysTotal && c.daysTotal > 0).length
+    ? Math.round(complete.filter(c=>c.daysTotal&&c.daysTotal>0).reduce((s,c)=>s+c.daysTotal,0)/complete.filter(c=>c.daysTotal&&c.daysTotal>0).length)
     : null;
 
-  const fmtPL  = v => v != null ? (v>=0?'+$':'-$') + Math.abs(Math.round(v)).toLocaleString() : '—';
+  // Premium yield = open premium / capital at risk
+  const premYield = capitalAtRisk > 0 ? (openPremium / capitalAtRisk * 100).toFixed(1) : null;
+
+  const fmtPL  = v => v != null ? ((v>=0?'+$':'−$') + Math.abs(Math.round(v)).toLocaleString()) : '—';
   const fmtCol = (label,val,sub,color='var(--text)') =>
     `<div class="tile"><div class="tile-label">${label}</div><div class="tile-value" style="color:${color};">${val}</div><div class="tile-sub">${sub}</div></div>`;
 
@@ -20761,7 +21121,7 @@ function buildWheelCycles() {
             <span style="font-size:13px;font-weight:600;">$${p.strike} × ${p.contracts}</span>
             <span style="font-size:12px;color:var(--text-3);">${p.openDate||'—'} → ${p.closeDate||'open'}</span>
             <span style="font-size:12px;color:var(--green);">$${((parseFloat(p.premium)||0)*(p.contracts||1)*100).toFixed(0)} credit</span>
-            <span style="font-size:13px;font-weight:600;color:${pl!=null&&pl>=0?'var(--green)':'var(--red)'};">${pl!=null?fmtPL(pl):'open'}</span>
+            <span style="font-size:13px;font-weight:600;color:${pl!=null?(pl>=0?'var(--green)':'var(--red)'):'var(--text-3)'};">${pl!=null?fmtPL(pl):'<span style=\"color:var(--text-3);font-size:11px;\">pending</span>'}</span>
             <span style="font-size:11px;">${c.put.closeReason ? {
               '50%':'✓ 50% target','expired':'⏱ Expired','assigned':'📋 Assigned','rolled':'🔄 Rolled','stopped':'🛑 Stopped','manual':'✏ Manual'
             }[c.put.closeReason]||c.put.closeReason : ''}</span>
@@ -20803,7 +21163,7 @@ function buildWheelCycles() {
             <span style="font-size:13px;font-weight:600;">$${cc.strike} × ${cc.contracts}</span>
             <span style="font-size:12px;color:var(--text-3);">${cc.openDate||'—'} → ${cc.closeDate||'open'}</span>
             <span style="font-size:12px;color:var(--green);">$${((parseFloat(cc.premium)||0)*(cc.contracts||1)*100).toFixed(0)} credit</span>
-            <span style="font-size:13px;font-weight:600;color:${pl!=null&&pl>=0?'var(--green)':'var(--red)'};">${pl!=null?fmtPL(pl):'open'}</span>
+            <span style="font-size:13px;font-weight:600;color:${pl!=null?(pl>=0?'var(--green)':'var(--red)'):'var(--text-3)'};">${pl!=null?fmtPL(pl):'<span style=\"color:var(--text-3);font-size:11px;\">pending</span>'}</span>
             <span style="font-size:11px;">${cc.closeReason ? {
               '50%':'✓ 50% target','expired':'⏱ Expired','assigned':'📋 Assigned','rolled':'🔄 Rolled','stopped':'🛑 Stopped','manual':'✏ Manual'
             }[cc.closeReason]||cc.closeReason : ''}</span>
@@ -20835,6 +21195,10 @@ function buildWheelCycles() {
             ${c.ccs.length > 1 ? `<span style="font-size:11px;color:var(--text-3);">${c.ccs.length} CC legs</span>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:16px;">
+            ${c.status !== 'complete' && c.startDate ? (() => {
+              const daysOpen = Math.round((new Date() - new Date(c.startDate+'T12:00:00')) / 86400000);
+              return `<span style="font-size:12px;font-weight:600;color:var(--blue);">Day ${daysOpen}</span>`;
+            })() : ''}
             <span style="font-size:12px;color:var(--text-3);">${c.startDate||'—'} → ${c.endDate||'ongoing'}</span>
           </div>
         </div>
@@ -20847,15 +21211,24 @@ function buildWheelCycles() {
   };
 
   el.innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px;">
-      ${fmtCol('Total cycles', cycles.length, `${active.length} active · ${complete.length} complete`, 'var(--blue)')}
-      ${fmtCol('Total P&L', fmtPL(totalPL), 'all cycles combined', totalPL>=0?'var(--green)':'var(--red)')}
-      ${fmtCol('Avg annualized', avgAnn ? avgAnn + '%' : '—', 'completed cycles only', avgAnn&&parseFloat(avgAnn)>=0?'var(--green)':'var(--red)')}
-      ${fmtCol('Avg cycle length', avgDays ? avgDays + 'd' : '—', 'put open → cycle close', 'var(--text)')}
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px;">
+      ${fmtCol('Realized P&L', fmtPL(realizedPL), complete.length+' completed cycle'+(complete.length!==1?'s':''), realizedPL>=0?'var(--green)':'var(--red)')}
+      ${fmtCol('Open premium', openPremium>0?'$'+Math.round(openPremium).toLocaleString():'—', active.length+' active cycle'+(active.length!==1?'s':''), 'var(--amber)')}
+      ${fmtCol('Capital at risk', capitalAtRisk>0?'$'+Math.round(capitalAtRisk/1000).toFixed(0)+'k':'—', 'assignment obligations', 'var(--text)')}
+      ${fmtCol('Premium yield', premYield?premYield+'%':'—', capitalAtRisk>0?'on $'+Math.round(capitalAtRisk/1000).toFixed(0)+'k capital':'open positions', premYield&&parseFloat(premYield)>=4?'var(--green)':premYield?'var(--amber)':'var(--text-3)')}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;">
+      ${fmtCol('Total cycles', cycles.length, active.length+' active · '+complete.length+' complete', 'var(--blue)')}
+      ${fmtCol('Avg annualized', avgAnn ? avgAnn+'%' : '—', avgAnn ? 'completed cycles · ≥1d' : 'N/A · requires ≥1 day hold', avgAnn&&parseFloat(avgAnn)>=0?'var(--green)':'var(--text-3)')}
+      ${fmtCol('Avg cycle length', avgDays ? avgDays+'d' : '—', avgDays ? 'put open → cycle close' : 'no completed cycles yet', 'var(--text)')}
     </div>
     ${cycles.map(cycleCard).join('')}
-    <div style="font-size:11px;color:var(--text-3);text-align:center;margin-top:8px;">Cycles grouped by ticker. Put → Assignment → Covered Call legs shown in order. Total includes all legs.</div>
+    <div style="font-size:11px;color:var(--text-3);text-align:center;margin-top:8px;">Cycles grouped by ticker. Put → Assignment → Covered Call legs shown in order. Realized P&L = premium received minus closing costs across all completed legs.</div>
   `;
+  } catch(e) {
+    console.error('buildWheelCycles error:', e);
+    el.innerHTML = `<div style="padding:20px;color:var(--red);font-size:12px;">Error building cycles: ${e.message}</div>`;
+  }
 }
 
 /* ══════════════════════════════════════════════
@@ -20925,7 +21298,7 @@ function buildYoY() {
           { label:'Total income', val: fmtK(cur.totalCredit), color:'var(--green)', sub: `${cur.yr} YTD` },
           { label:'After-tax est.', val: fmtK(cur.afterTax), color:'var(--amber)', sub: `${Math.round((1-TAX)*100)}% tax rate` },
           { label:'Monthly avg', val: fmtK(cur.monthlyAvg), color:'var(--blue)', sub: `${cur.activeMos} months` },
-          { label:'Best month', val: cur.bestMoVal>0 ? fmtK(cur.bestMoVal) : '—', color:'var(--text)', sub: cur.bestMoVal>0 ? moNames[cur.bestMoIdx]+' '+cur.yr : 'No data yet' },
+          { label:'Best month', val: cur.bestMoVal>0 ? fmtK(cur.bestMoVal) : '—', color:'var(--text)', sub: cur.bestMoVal>0 ? moNames[cur.bestMoIdx]+' '+cur.yr+(cur.activeMos<=2?' · '+cur.activeMos+' income month'+(cur.activeMos!==1?'s':''):'') : 'No data yet' },
         ].map(c=>`<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:6px;">${c.label}</div>
           <div style="font-size:22px;font-weight:700;color:${c.color};letter-spacing:-.02em;">${c.val}</div>
@@ -21114,6 +21487,7 @@ function buildTaxSummary() {
         <td style="padding:7px 12px;font-size:12px;text-align:right;color:${r.winRate>=70?'var(--green)':r.winRate>=50?'var(--amber)':'var(--red)'};">${r.winRate}%</td>
         <td style="padding:7px 12px;font-size:13px;font-weight:600;text-align:right;color:${plColor(r.pl)};">${fmt(r.pl)}</td>
         <td style="padding:7px 12px;font-size:12px;text-align:right;color:var(--red);">${r.pl > 0 ? fmtAbs(r.tax) : '—'}</td>
+        <td style="padding:7px 12px;font-size:12px;font-weight:600;text-align:right;color:${plColor(r.pl - r.tax)};">${r.pl > 0 ? fmt(r.pl - r.tax) : fmt(r.pl)}</td>
       </tr>`).join('');
 
     return `
@@ -21135,9 +21509,9 @@ function buildTaxSummary() {
       <!-- Summary tiles -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-bottom:1px solid var(--border);">
         ${[
-          ['Gross credit', fmtAbs(d.grossCredit), 'premium collected', 'var(--green)'],
+          ['Realized option income', fmtAbs(d.grossCredit), 'net realized P&L from closed trades', 'var(--green)'],
           ['Realized P&L', fmt(d.realizedPL), `${d.puts} puts · ${d.ccs} CCs`, plColor(d.realizedPL)],
-          ['Est. tax owed', d.realizedPL > 0 ? fmtAbs(d.taxOwed) : '$0', `at ${Math.round(taxRate*100)}% ordinary income`, 'var(--red)'],
+          ['Est. tax', d.realizedPL > 0 ? fmtAbs(d.taxOwed) : '$0', `at ${Math.round(taxRate*100)}% ordinary income`, 'var(--red)'],
           ['After-tax income', fmt(d.afterTaxPL), 'spendable cash', plColor(d.afterTaxPL)],
           ['Effective rate', d.realizedPL > 0 ? fmtPct(d.effectiveRate) : '—', 'tax / realized P&L', 'var(--amber)'],
         ].map(([label, val, sub, color], i) => `
@@ -21183,6 +21557,7 @@ function buildTaxSummary() {
               <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Win rate</th>
               <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Realized P&L</th>
               <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">Est. Tax</th>
+              <th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);">After-Tax</th>
             </tr>
           </thead>
           <tbody>${tickerRowsHTML}</tbody>
