@@ -17155,7 +17155,10 @@ async function cmdTpFetchExpirations(symbol, price) {
     const dates = data?.expirations?.date;
     const arr = Array.isArray(dates) ? dates : (dates ? [dates] : []);
     const today = new Date(); today.setHours(0,0,0,0);
-    cmdTpExpirations = arr.map(d => { const dt = new Date(d+'T12:00:00'); const dte = Math.round((dt-today)/86400000); return {date:d,dte,label:dt.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})}; }).filter(e=>e.dte>=1&&e.dte<=160).slice(0,9);
+    const allCmdExp = arr.map(d => { const dt = new Date(d+'T12:00:00'); const dte = Math.round((dt-today)/86400000); return {date:d,dte,dt,label:dt.toLocaleDateString('en-US',{month:'numeric',day:'numeric'})}; }).filter(e=>e.dte>=1&&e.dte<=365);
+    const cmdNear = allCmdExp.filter(e=>e.dte<=45);
+    const cmdFar  = allCmdExp.filter(e=>e.dte>45&&e.dt.getDay()===5&&e.dt.getDate()>=15);
+    cmdTpExpirations = [...cmdNear,...cmdFar].slice(0,16);
     const container = document.getElementById('cmd-tp-exp-dates');
     if (!container) return;
     container.innerHTML = '';
@@ -17208,16 +17211,19 @@ async function cmdTpLoadStrikes(symbol, exp, price) {
     const putStyle = chgPct <= -2 ? 'aggressive' : 'standard';
     const w = putStyle==='aggressive' ? {premium:0.35,delta:0.30,liquidity:0.15,spread:0.20} : {premium:0.30,delta:0.35,liquidity:0.15,spread:0.20};
     const targetPrem = putStyle==='aggressive' ? 0.055 : 0.050;
-    const targetDelta = putStyle==='aggressive' ? 0.30 : 0.25; // Best targets 0.25 delta (~75% POP), max 0.35
+    const targetDelta = putStyle==='aggressive' ? 0.30 : 0.25;
+    // Scale filters with DTE — longer expirations have higher premium % and different delta ranges
+    const maxPremPct = exp.dte > 60 ? 0.40 : exp.dte > 30 ? 0.25 : 0.150;
+    const maxDelta   = exp.dte > 60 ? 0.50 : 0.35;
     const scored = puts.map(p => {
       const mid=((p.bid||0)+(p.ask||0))/2; const strike=parseFloat(p.strike);
       if (strike>=price) return null;
       const premPct=strike>0?mid/strike:0;
-      if (premPct<0.015||premPct>0.150) return null; // wider band — let scoring decide
+      if (premPct<0.005||premPct>maxPremPct) return null;
       const delta=Math.abs(p.greeks?.delta||0); const oi=parseInt(p.open_interest||0); const vol=parseInt(p.volume||0);
       const spread=mid>0?((p.ask||0)-(p.bid||0))/mid:1;
-      if (spread>0.50) return null; // wider spread tolerance
-      if (delta>0 && delta>0.35) return null; // enforce 65% min POP (delta ≤ 0.35)
+      if (spread>0.60) return null;
+      if (delta>0 && delta>maxDelta) return null;
       const premScore=premPct>=targetPrem?Math.min(1,0.8+(premPct-targetPrem)/targetPrem*0.2):Math.max(0,premPct/targetPrem);
       const deltaScore=delta>0?Math.max(0,1-Math.abs(delta-targetDelta)/0.20):0.3;
       const spreadScore=spread<=0.10?1.0:spread<=0.20?1.0-((spread-0.10)/0.10)*0.5:1.0-((spread-0.10)/0.20)*1.0;
@@ -22833,15 +22839,10 @@ async function olFetchExpirations(symbol, price) {
       const dt = new Date(d + 'T12:00:00');
       const dte = Math.round((dt - today) / 86400000);
       return { date: d, dte, dt, label: dt.toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) };
-    }).filter(e => e.dte >= 1 && e.dte <= 540);
-    // Show weeklies up to 14 DTE, then monthly expirations beyond
-    const near = allExp.filter(e => e.dte <= 14);
-    const far  = allExp.filter(e => e.dte > 14).filter(e => {
-      const dow = e.dt.getDay();
-      const dom = e.dt.getDate();
-      return dow === 5 && dom >= 15; // Fridays on or after 15th = monthly-ish
-    });
-    olExpirations = [...near, ...far].slice(0, 14);
+    }).filter(e => e.dte >= 1 && e.dte <= 365);
+    const near = allExp.filter(e => e.dte <= 45);
+    const far  = allExp.filter(e => e.dte > 45 && e.dt.getDay() === 5 && e.dt.getDate() >= 15);
+    olExpirations = [...near, ...far].slice(0, 16);
     const container = document.getElementById('ol-exp-dates');
     container.innerHTML = '';
     const best = olExpirations.reduce((b,e) => Math.abs(e.dte-30) < Math.abs(b.dte-30) ? e : b, olExpirations[0]);
