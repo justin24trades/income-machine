@@ -22826,13 +22826,22 @@ async function olFetchExpirations(symbol, price) {
   try {
     const data = await tradierGet('/markets/options/expirations?symbol=' + symbol + '&includeAllRoots=true&strikes=false');
     const dates = data?.expirations?.date;
+    console.log('SOXL expirations from Tradier:', dates);
     const arr = Array.isArray(dates) ? dates : (dates ? [dates] : []);
     const today = new Date(); today.setHours(0,0,0,0);
-    olExpirations = arr.map(d => {
+    const allExp = arr.map(d => {
       const dt = new Date(d + 'T12:00:00');
       const dte = Math.round((dt - today) / 86400000);
-      return { date: d, dte, label: dt.toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) };
-    }).filter(e => e.dte >= 1 && e.dte <= 160).slice(0, 9);
+      return { date: d, dte, dt, label: dt.toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) };
+    }).filter(e => e.dte >= 1 && e.dte <= 540);
+    // Show weeklies up to 14 DTE, then monthly expirations beyond
+    const near = allExp.filter(e => e.dte <= 14);
+    const far  = allExp.filter(e => e.dte > 14).filter(e => {
+      const dow = e.dt.getDay();
+      const dom = e.dt.getDate();
+      return dow === 5 && dom >= 15; // Fridays on or after 15th = monthly-ish
+    });
+    olExpirations = [...near, ...far].slice(0, 14);
     const container = document.getElementById('ol-exp-dates');
     container.innerHTML = '';
     const best = olExpirations.reduce((b,e) => Math.abs(e.dte-30) < Math.abs(b.dte-30) ? e : b, olExpirations[0]);
