@@ -14983,6 +14983,7 @@ async function refreshHeatMap() {
 
   // Render immediately with cached prices
   window._hmLastPositions = openPositions;
+  window._gtcVerified = false; // reset so GTC re-checks against fresh position list
   // Refresh Command Center Act Now column so Tradier positions appear there too
   if (typeof cmdBuildActCol === 'function') {
     const activePage = document.querySelector('.page.active');
@@ -15840,8 +15841,8 @@ function executeRoll(params) {
       <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);width:100%;max-width:540px;overflow:hidden;" onclick="event.stopPropagation()">
         <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
           <div>
-            <div style="font-size:15px;font-weight:700;">${modeLabel} · Multileg Roll Order</div>
-            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">Simultaneously BTC existing + STO new in one order</div>
+            <div style="font-size:15px;font-weight:700;">${modeLabel} · Roll — 2 Separate Orders</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">BTC existing + STO new (submitted sequentially)</div>
           </div>
           <button onclick="document.getElementById('roll-confirm-modal').remove()" style="background:none;border:none;color:var(--text-3);font-size:20px;cursor:pointer;">✕</button>
         </div>
@@ -15986,34 +15987,89 @@ async function placeRollMultileg(origTradeId, ticker, posType) {
   const btn = document.querySelector('#roll-confirm-modal button[onclick^="placeRollMultileg"]');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Placing…'; }
 
+  const btcParams = new URLSearchParams({
+    class:         'option',
+    symbol:        ticker,
+    option_symbol: leg1Symbol,
+    side:          'buy_to_close',
+    quantity:      String(leg2Qty),
+    type:          'limit',
+    price:         leg1Price.toFixed(2),
+    duration:      'gtc',
+  });
+
+  const stoParams = new URLSearchParams({
+    class:         'option',
+    symbol:        ticker,
+    option_symbol: leg2OCC,
+    side:          'sell_to_open',
+    quantity:      String(leg2Qty),
+    type:          'limit',
+    price:         leg2Price.toFixed(2),
+    duration:      'gtc',
+  });
+
   try {
-    // Tradier multileg roll: class=multileg, two legs
-    const params = new URLSearchParams({
-      class:    'multileg',
-      symbol:   ticker,
-      duration: 'gtc',
-      type:     'debit',   // net debit/credit; Tradier resolves direction
-      price:    (leg1Price - leg2Price).toFixed(2),  // net price (positive = debit, negative = credit)
-      // Leg 1: buy to close existing
-      'option_symbol[0]': leg1Symbol,
-      'side[0]':          'buy_to_close',
-      'quantity[0]':      String(leg2Qty),
-      'type[0]':          'limit',
-      // Leg 2: sell to open new
-      'option_symbol[1]': leg2OCC,
-      'side[1]':          'sell_to_open',
-      'quantity[1]':      String(leg2Qty),
-      'type[1]':          'limit',
+    // Step 0: Cancel any existing GTC buy-to-close on this position
+    console.log('Roll: mode='+tradingMode+' base='+activeBase()+' token='+activeToken()?.slice(0,8));
+    const existingOrders = await brokerGet(`/accounts/${activeAccount()}/orders?limit=500`);
+    const allOrders = (() => { const o = existingOrders?.orders?.order; if (!o) return []; return Array.isArray(o)?o:[o]; })();
+    const flatOrders = typeof otNormalizeOrders === 'function' ? otNormalizeOrders(allOrders) : allOrders;
+    const existingBTCs = flatOrders.filter(o => {
+      const sym  = o.option_symbol || o.symbol || '';
+      const side = (o.side || '').toLowerCase();
+      const stat = (o.status || '').toLowerCase();
+      return sym === leg1Symbol && side.includes('buy') && (stat === 'open' || stat === 'pending' || stat === 'held');
     });
-
-    const resp    = await brokerPostRaw(`/accounts/${activeAccount()}/orders`, params);
-    const data    = await resp.json();
-    const orderId = data?.order?.id || data?.orders?.order?.id || '—';
-
-    if (!resp.ok && !orderId) {
-      const msg = data?.fault?.faultstring || data?.error || data?.errors?.error || JSON.stringify(data).slice(0,200);
-      throw new Error(msg);
+    for (const o of existingBTCs) {
+      console.log('Roll: cancelling existing BTC order', o.id);
+      await brokerPostRaw(`/accounts/${activeAccount()}/orders/${o.id}`, new URLSearchParams({ _method: 'DELETE' }));
+      // Tradier uses DELETE not POST for cancellation
+      await fetch(activeBase() + `/accounts/${activeAccount()}/orders/${o.id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + activeToken(), 'Accept': 'application/json' }
+      });
     }
+
+    // Place BTC first
+    console.log('Roll: placing BTC order', btcParams.toString());
+    const btcResp = await brokerPostRaw(`/accounts/${activeAccount()}/orders`, btcParams);
+    const btcData = await btcResp.json();
+    console.log('Roll BTC response:', btcData);
+    const btcId   = btcData?.order?.id || btcData?.orders?.order?.id;
+    if (!btcResp.ok || !btcId) {
+      const msg = btcData?.fault?.faultstring || btcData?.error || btcData?.errors?.error || JSON.stringify(btcData).slice(0,200);
+      throw new Error('BTC leg failed: ' + msg);
+    }
+
+    // Place STO second
+    const stoResp = await brokerPostRaw(`/accounts/${activeAccount()}/orders`, stoParams);
+    const stoData = await stoResp.json();
+    const stoId   = stoData?.order?.id || stoData?.orders?.order?.id;
+    if (!stoResp.ok || !stoId) {
+      const msg = stoData?.fault?.faultstring || stoData?.error || stoData?.errors?.error || JSON.stringify(stoData).slice(0,200);
+      throw new Error('STO leg failed (BTC #'+btcId+' placed): ' + msg);
+    }
+
+    // Place GTC BTC at 50% of new premium (profit target on new position)
+    const gtcPrice  = Math.max(0.01, parseFloat((leg2Price * 0.50).toFixed(2)));
+    const gtcParams = new URLSearchParams({
+      class:         'option',
+      symbol:        ticker,
+      option_symbol: leg2OCC,
+      side:          'buy_to_close',
+      quantity:      String(leg2Qty),
+      type:          'limit',
+      price:         gtcPrice.toFixed(2),
+      duration:      'gtc',
+    });
+    console.log('Roll: placing GTC profit-target BTC at $'+gtcPrice);
+    const gtcResp = await brokerPostRaw(`/accounts/${activeAccount()}/orders`, gtcParams);
+    const gtcData = await gtcResp.json();
+    const gtcId   = gtcData?.order?.id || gtcData?.orders?.order?.id;
+    if (!gtcId) console.warn('GTC profit-target order failed (non-fatal):', gtcData);
+
+    const orderId = btcId;
 
     // Update original trade: mark as rolled
     const orig = origTradeId ? (JOURNAL||[]).find(t => t.id === origTradeId) : null;
@@ -16047,7 +16103,7 @@ async function placeRollMultileg(origTradeId, ticker, posType) {
 
     if (resultEl) {
       resultEl.innerHTML = `<div style="padding:8px 12px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:var(--radius-sm);margin-bottom:12px;font-size:12px;color:#86efac;">
-        ✅ Multileg roll placed — Order ID ${orderId}<br>
+        ✅ Roll placed — BTC #${btcId} · STO #${stoId}${gtcId ? ' · GTC profit-target #'+gtcId+' @ $'+gtcPrice : ''}<br>
         <span style="font-size:11px;color:var(--text-3);">Journal updated. Pull from Tradier once filled to sync final prices.</span>
       </div>`;
     }
@@ -16055,9 +16111,10 @@ async function placeRollMultileg(origTradeId, ticker, posType) {
     rollSourceId = null;
 
   } catch(e) {
+    console.error('Roll order error:', e);
     if (resultEl) resultEl.innerHTML = `<div style="padding:8px 12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:var(--radius-sm);margin-bottom:12px;font-size:12px;color:#fca5a5;">
       ❌ <strong>${e.message}</strong><br>
-      <span style="font-size:10px;">Note: Tradier sandbox may not support multileg orders. Try in live mode or contact Tradier support.</span>
+      <span style="font-size:10px;">Check browser console for full error details.</span>
     </div>`;
     if (btn) { btn.disabled = false; btn.textContent = '📤 Retry'; }
   }
@@ -16253,10 +16310,13 @@ async function hmVerifyGTCOrders() {
     const rawOrders = (() => { const o = ordData?.orders?.order; if (!o) return []; return Array.isArray(o)?o:[o]; })();
     const ordArr = (typeof otNormalizeOrders==='function' ? otNormalizeOrders(rawOrders) : rawOrders)
       .filter(o => { const s=(o.status||'').toLowerCase(); return s==='open'||s==='pending'||s==='held'; });
+    const liveSymbols = new Set((window._hmLastPositions||[]).map(p => p.symbol).filter(Boolean));
     const open = (JOURNAL||[]).filter(t => !t.closeDate && !t.cancelled && !isPendingOrder(t) && (t.type==='put'||t.type==='cc') && !t.isEquity);
     const missing = open.filter(pos => {
       const sym = pos.symbol || buildOCCSymbol(pos.ticker, pos.expDate, pos.type==='put'?'put':'call', pos.strike);
       if (!sym) return false;
+      // Only check positions that are confirmed open in live Tradier data
+      if (liveSymbols.size > 0 && !liveSymbols.has(sym)) return false;
       return !ordArr.some(o => {
         const oSym = o.option_symbol||o.symbol||'';
         const side = (o.side||'').toLowerCase();
@@ -16915,8 +16975,10 @@ async function openRollPanel(posId, livePrice) {
           // 3. Earnings in new window?
           const tObj2 = (TICKERS||[]).find(t=>t.name===pos.ticker);
           const avoidStart2 = pos.avoidStart || tObj2?.avoidStart;
-          if (avoidStart2 && new Date(avoidStart2) <= new Date(expiry))
-            blocks.push('🔴 Earnings '+new Date(avoidStart2).toLocaleDateString('en-US',{month:'short',day:'numeric'})+' falls inside new expiry. Rolling into binary event risk.');
+          const avoidDate2  = avoidStart2 ? new Date(avoidStart2) : null;
+          const today2      = new Date(); today2.setHours(0,0,0,0);
+          if (avoidDate2 && avoidDate2 >= today2 && avoidDate2 <= new Date(expiry))
+            blocks.push('🔴 Earnings '+avoidDate2.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' falls inside new expiry. Rolling into binary event risk.');
           if (tObj2?.earningsDate && !tObj2.earningsDate.toLowerCase().includes('n/a') && !tObj2.earningsDate.toLowerCase().includes('—') && earnBadge(tObj2.earningsDate).includes('--red-dim'))
             blocks.push('🔴 Earnings within 14 days — new expiry likely overlaps earnings window.');
 
